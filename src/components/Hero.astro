@@ -1,0 +1,68 @@
+---
+import ParticleBackground from './ParticleBackground';
+---
+
+<section id="home" class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0a1a] via-bg-medium to-[#0a0a1a] overflow-hidden">
+  <ParticleBackground client:load />
+
+  <div class="relative z-10 text-center px-6 max-w-3xl">
+    <p class="text-accent text-xs tracking-[0.3em] mb-8 uppercase animate-[fadeIn_1s_ease-out]">
+      Software Engineer
+    </p>
+
+    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+      <span class="text-white">Hi, I'm </span>
+      <span id="typed-target" class="text-accent"></span>
+    </h1>
+
+    <p class="text-gray-400 text-lg md:text-xl mb-10 max-w-xl mx-auto animate-[fadeIn_1s_ease-out_0.5s_both]">
+      Building elegant solutions to complex problems
+    </p>
+
+    <div class="flex gap-4 justify-center flex-wrap animate-[fadeIn_1s_ease-out_1s_both]">
+      <a href="#projects" class="btn-glow bg-accent text-bg-darkest px-7 py-3 rounded-lg font-semibold hover:bg-accent-dark transition-colors text-sm">
+        View Projects
+      </a>
+      <a href="#contact" class="btn-glow border border-accent text-accent px-7 py-3 rounded-lg font-semibold hover:bg-accent/10 transition-colors text-sm">
+        Get in Touch
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script>
+  import Typed from 'typed.js';
+
+  const typed = new Typed('#typed-target', {
+    strings: ["Douglas Li^1000 👋"],
+    typeSpeed: 70,
+    backSpeed: 30,
+    backDelay: 1000,
+    startDelay: 300,
+    showCursor: true,
+    cursorChar: '_',
+    loop: false,
+    onComplete: (self) => {
+      self.cursor.style.animation = 'blink 1s step-end infinite';
+    },
+  });
+</script>
+
+<style is:global>
+  #typed-target + .typed-cursor {
+    color: #00ff88;
+    font-weight: 300;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+</style>

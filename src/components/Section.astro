@@ -1,0 +1,14 @@
+---
+const { id, bg = 'darkest' } = Astro.props;
+const bgMap = {
+  darkest: 'bg-bg-darkest',
+  dark: 'bg-bg-dark',
+  medium: 'bg-bg-medium',
+};
+---
+
+<section id={id} class={`fade-in-up py-20 px-6 ${bgMap[bg] || bgMap.darkest}`}>
+  <div class="max-w-6xl mx-auto">
+    <slot />
+  </div>
+</section>

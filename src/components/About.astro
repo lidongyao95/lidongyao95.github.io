@@ -1,0 +1,41 @@
+---
+import Section from './Section.astro';
+---
+
+<Section id="about" bg="medium">
+  <h2 class="text-3xl font-bold text-accent mb-12 text-center">About Me</h2>
+
+  <div class="flex flex-col md:flex-row gap-10 items-center max-w-4xl mx-auto">
+    <div class="w-44 h-44 rounded-full border-2 border-accent/20 flex-shrink-0 bg-bg-dark flex items-center justify-center">
+      <span class="text-5xl">🧑‍💻</span>
+    </div>
+
+    <div>
+      <p class="text-gray-400 leading-relaxed text-lg mb-6">
+        A passionate software engineer who loves turning complex problems into simple,
+        beautiful solutions. I specialize in building full-stack web applications
+        with modern technologies.
+      </p>
+      <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1.5 text-xs rounded-full border border-white/10 text-gray-300 bg-white/[0.02]">
+          React
+        </span>
+        <span class="px-3 py-1.5 text-xs rounded-full border border-white/10 text-gray-300 bg-white/[0.02]">
+          TypeScript
+        </span>
+        <span class="px-3 py-1.5 text-xs rounded-full border border-white/10 text-gray-300 bg-white/[0.02]">
+          Node.js
+        </span>
+        <span class="px-3 py-1.5 text-xs rounded-full border border-white/10 text-gray-300 bg-white/[0.02]">
+          Python
+        </span>
+        <span class="px-3 py-1.5 text-xs rounded-full border border-white/10 text-gray-300 bg-white/[0.02]">
+          Docker
+        </span>
+        <span class="px-3 py-1.5 text-xs rounded-full border border-white/10 text-gray-300 bg-white/[0.02]">
+          PostgreSQL
+        </span>
+      </div>
+    </div>
+  </div>
+</Section>
