@@ -74,6 +74,39 @@ body {
   opacity: 1;
 }
 
+/* KaTeX display math spacing */
+.katex-display {
+  margin: 1.5em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Table styles for prose */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.prose thead {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.prose th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #00ff88;
+}
+
+.prose td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.prose tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #06060a; }

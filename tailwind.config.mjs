@@ -10,5 +10,5 @@ export default {
       fontFamily: { mono: ['JetBrains Mono', 'Fira Code', 'monospace'] },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/typography')],
 };
