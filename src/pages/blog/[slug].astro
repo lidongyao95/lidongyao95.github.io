@@ -21,11 +21,11 @@ const { Content } = await render(post);
   <main class="pt-28 pb-20 px-6">
     <article class="max-w-3xl mx-auto">
       <a href="/blog" class="text-accent text-sm mb-8 inline-block hover:underline">
-        &larr; Back to Blog
+        &larr; 返回博客
       </a>
 
       <span class="text-xs text-gray-600">
-        {post.data.date.toLocaleDateString('en-US', {
+        {post.data.date.toLocaleDateString('zh-CN', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',

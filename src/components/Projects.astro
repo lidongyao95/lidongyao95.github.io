@@ -3,20 +3,20 @@ import Section from './Section.astro';
 
 const projects = [
   {
-    title: 'Project One',
-    description: 'A full-stack web application for real-time team collaboration.',
+    title: '项目一',
+    description: '面向实时团队协作的全栈 Web 应用。',
     tags: 'React · TypeScript · WebSocket',
     gradient: 'from-[#1a1a2e] to-[#16213e]',
   },
   {
-    title: 'Project Two',
-    description: 'CLI tool for automated deployment and CI/CD workflows.',
+    title: '项目二',
+    description: '用于自动化部署和 CI/CD 流程的 CLI 工具。',
     tags: 'Python · Click · Docker',
     gradient: 'from-[#0f3460] to-[#16213e]',
   },
   {
-    title: 'Project Three',
-    description: 'Microservice architecture for high-throughput data processing.',
+    title: '项目三',
+    description: '面向高吞吐量数据处理的微服务架构。',
     tags: 'Node.js · Kafka · Redis',
     gradient: 'from-[#1a1a2e] to-[#0f3460]',
   },
@@ -24,7 +24,7 @@ const projects = [
 ---
 
 <Section id="projects" bg="medium">
-  <h2 class="text-3xl font-bold text-accent mb-12 text-center">Featured Projects</h2>
+  <h2 class="text-3xl font-bold text-accent mb-12 text-center">精选项目</h2>
 
   <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
     {projects.map((project) => (

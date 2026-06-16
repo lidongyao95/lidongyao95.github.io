@@ -1,10 +1,9 @@
 ---
-title: 'Hello, World!'
+title: '你好，世界！'
 date: 2024-01-15
-excerpt: 'Welcome to my blog. This is the first post.'
+excerpt: '欢迎来到我的博客，这是第一篇文章。'
 ---
 
-Welcome to my blog! This is where I'll share my thoughts on software engineering,
-open source, and technology.
+欢迎来到我的博客！我会在这里分享关于软件工程、开源和技术方面的思考。
 
-Stay tuned for more content.
+敬请期待更多内容。

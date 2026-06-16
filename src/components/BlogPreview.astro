@@ -8,11 +8,11 @@ const posts = (await getCollection('blog'))
 ---
 
 <Section id="blog" bg="dark">
-  <h2 class="text-3xl font-bold text-accent mb-12 text-center">Latest Posts</h2>
+  <h2 class="text-3xl font-bold text-accent mb-12 text-center">最新文章</h2>
 
   <div class="max-w-3xl mx-auto">
     {posts.length === 0 ? (
-      <p class="text-gray-600 text-center">Blog posts coming soon.</p>
+      <p class="text-gray-600 text-center">文章即将发布。</p>
     ) : (
       posts.map((post) => (
         <a
@@ -20,7 +20,7 @@ const posts = (await getCollection('blog'))
           class="block py-4 border-b border-white/5 hover:border-accent/20 transition-colors group"
         >
           <span class="text-xs text-gray-600">
-            {post.data.date.toLocaleDateString('en-US', {
+            {post.data.date.toLocaleDateString('zh-CN', {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
@@ -39,7 +39,7 @@ const posts = (await getCollection('blog'))
       href="/blog"
       class="btn-glow inline-block border border-accent text-accent px-6 py-3 rounded-lg font-medium hover:bg-accent/10 transition-colors text-sm"
     >
-      View All Posts &rarr;
+      查看全部文章 &rarr;
     </a>
   </div>
 </Section>
