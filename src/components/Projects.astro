@@ -3,22 +3,28 @@ import Section from './Section.astro';
 
 const projects = [
   {
-    title: '项目一',
-    description: '面向实时团队协作的全栈 Web 应用。',
-    tags: 'React · TypeScript · WebSocket',
+    title: 'AI Skills for Teaching Practitioners',
+    description: '面向教育工作者的 AI 技能实践指南，涵盖提示词工程、AI 辅助教学设计等。',
+    tags: 'Python · AI · Education',
     gradient: 'from-[#1a1a2e] to-[#16213e]',
+    url: 'https://github.com/lidongyao95/ai-skills-for-teaching-practitioners',
+    icon: '🤖',
   },
   {
-    title: '项目二',
-    description: '用于自动化部署和 CI/CD 流程的 CLI 工具。',
-    tags: 'Python · Click · Docker',
+    title: 'EduScore Tracker',
+    description: '教育评分追踪系统，支持学生成绩管理、数据分析与可视化报告。',
+    tags: 'Python · Data · Web',
     gradient: 'from-[#0f3460] to-[#16213e]',
+    url: 'https://github.com/lidongyao95/eduscore-tracker',
+    icon: '📊',
   },
   {
-    title: '项目三',
-    description: '面向高吞吐量数据处理的微服务架构。',
-    tags: 'Node.js · Kafka · Redis',
+    title: 'Work General Knowledge',
+    description: '工作通用知识库，沉淀软件工程实践中的技术笔记、工具链配置与最佳实践。',
+    tags: 'Python · Knowledge Base · Documentation',
     gradient: 'from-[#1a1a2e] to-[#0f3460]',
+    url: 'https://github.com/lidongyao95/work_general_knowledge',
+    icon: '📚',
   },
 ];
 ---
@@ -28,9 +34,14 @@ const projects = [
 
   <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
     {projects.map((project) => (
-      <div class="card-glow rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden hover:border-accent/20 hover:-translate-y-1 transition-all duration-300 group">
+      <a
+        href={project.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="card-glow rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden hover:border-accent/20 hover:-translate-y-1 transition-all duration-300 group block"
+      >
         <div class={`h-36 bg-gradient-to-br ${project.gradient} flex items-center justify-center`}>
-          <span class="text-4xl opacity-30 group-hover:opacity-50 transition-opacity">📁</span>
+          <span class="text-4xl opacity-40 group-hover:opacity-70 transition-opacity">{project.icon}</span>
         </div>
         <div class="p-5">
           <h3 class="font-semibold text-white mb-2 group-hover:text-accent transition-colors">
@@ -41,7 +52,7 @@ const projects = [
           </p>
           <span class="text-xs text-accent/80">{project.tags}</span>
         </div>
-      </div>
+      </a>
     ))}
   </div>
 </Section>
