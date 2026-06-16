@@ -358,3 +358,44 @@ Transformer 的核心瓶颈是 **Self-Attention 的二次复杂度**——序列
 | **RLHF** | 用人类偏好训练模型对齐，ChatGPT 背后的技术 |
 
 十年间，从 RNN 串行训练的几十个时间步，到如今并行处理 128K token 的上下文窗口。从特定任务训练到通用能力涌现。而这一切，都始于 2017 年那篇只有 8 位作者的论文里的一个念头：**也许 Attention 真的就够了**。
+
+## 参考文献
+
+1. Sutskever, Vinyals, Le. **Sequence to Sequence Learning with Neural Networks**. NeurIPS 2014.  
+   https://arxiv.org/abs/1409.3215
+
+2. Bahdanau, Cho, Bengio. **Neural Machine Translation by Jointly Learning to Align and Translate**. ICLR 2015.  
+   https://arxiv.org/abs/1409.0473
+
+3. Vaswani, Shazeer, Parmar, et al. **Attention Is All You Need**. NeurIPS 2017.  
+   https://arxiv.org/abs/1706.03762
+
+4. Radford, Narasimhan, Salimans, Sutskever. **Improving Language Understanding by Generative Pre-Training (GPT-1)**. 2018.  
+   https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf
+
+5. Devlin, Chang, Lee, Toutanova. **BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding**. NAACL 2019.  
+   https://arxiv.org/abs/1810.04805
+
+6. Yang, Dai, Yang, et al. **XLNet: Generalized Autoregressive Pretraining for Language Understanding**. NeurIPS 2019.  
+   https://arxiv.org/abs/1906.08237
+
+7. Raffel, Shazeer, Roberts, et al. **Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer (T5)**. JMLR 2020.  
+   https://arxiv.org/abs/1910.10683
+
+8. Clark, Luong, Le, Manning. **ELECTRA: Pre-training Text Encoders as Discriminators Rather Than Generators**. ICLR 2020.  
+   https://arxiv.org/abs/2003.10555
+
+9. Kaplan, McCandlish, Henighan, et al. **Scaling Laws for Neural Language Models**. 2020.  
+   https://arxiv.org/abs/2001.08361
+
+10. Ouyang, Wu, Jiang, et al. **Training Language Models to Follow Instructions with Human Feedback (InstructGPT)**. NeurIPS 2022.  
+    https://arxiv.org/abs/2203.02155
+
+11. Touvron, Lavril, Izacard, et al. **LLaMA: Open and Efficient Foundation Language Models**. 2023.  
+    https://arxiv.org/abs/2302.13971
+
+12. Dao, Fu, Ermon, et al. **FlashAttention: Fast and Memory-Efficient Exact Attention**. NeurIPS 2022.  
+    https://arxiv.org/abs/2205.14135
+
+13. Gu, Dao. **Mamba: Linear-Time Sequence Modeling with Selective State Spaces**. 2023.  
+    https://arxiv.org/abs/2312.00752

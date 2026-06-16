@@ -432,7 +432,62 @@ Gu, Dao. 2023.<br/>
 
 
 <table><thead><tr><th>概念</th><th>一句话解释</th></tr></thead><tbody><tr><td><strong>Self-Attention</strong></td><td>序列中每个词计算和所有词的相关性，加权聚合信息</td></tr><tr><td><strong>Multi-Head</strong></td><td>多个 Attention 并行，从不同角度捕捉关系</td></tr><tr><td><strong>Positional Encoding</strong></td><td>显式注入位置信息，替代 RNN 的隐式时序</td></tr><tr><td><strong>残差 + LayerNorm</strong></td><td>让梯度能走短路，支持训练深层网络</td></tr><tr><td><strong>Encoder（BERT 路线）</strong></td><td>双向理解，擅长分类/问答/信息抽取</td></tr><tr><td><strong>Decoder（GPT 路线）</strong></td><td>单向生成，靠规模做到”理解即生成”</td></tr><tr><td><strong>Scaling Law</strong></td><td>算力 + 数据 → 更大模型 → 更强能力</td></tr><tr><td><strong>RLHF</strong></td><td>用人类偏好训练模型对齐，ChatGPT 背后的技术</td></tr></tbody></table>
-<p>十年间，从 RNN 串行训练的几十个时间步，到如今并行处理 128K token 的上下文窗口。从特定任务训练到通用能力涌现。而这一切，都始于 2017 年那篇只有 8 位作者的论文里的一个念头：<strong>也许 Attention 真的就够了</strong>。</p> </div> </article> </main> <section id="contact" class="fade-in-up py-20 px-6 bg-bg-darkest"> <div class="max-w-6xl mx-auto">  <div class="text-center border-t border-white/5 pt-16"> <h2 class="text-3xl font-bold text-accent mb-4">联系我</h2> <p class="text-gray-400 mb-10 max-w-md mx-auto">
+<p>十年间，从 RNN 串行训练的几十个时间步，到如今并行处理 128K token 的上下文窗口。从特定任务训练到通用能力涌现。而这一切，都始于 2017 年那篇只有 8 位作者的论文里的一个念头：<strong>也许 Attention 真的就够了</strong>。</p>
+<h2 id="参考文献">参考文献</h2>
+<ol>
+<li>
+<p>Sutskever, Vinyals, Le. <strong>Sequence to Sequence Learning with Neural Networks</strong>. NeurIPS 2014.<br/>
+<a href="https://arxiv.org/abs/1409.3215" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/1409.3215</a></p>
+</li>
+<li>
+<p>Bahdanau, Cho, Bengio. <strong>Neural Machine Translation by Jointly Learning to Align and Translate</strong>. ICLR 2015.<br/>
+<a href="https://arxiv.org/abs/1409.0473" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/1409.0473</a></p>
+</li>
+<li>
+<p>Vaswani, Shazeer, Parmar, et al. <strong>Attention Is All You Need</strong>. NeurIPS 2017.<br/>
+<a href="https://arxiv.org/abs/1706.03762" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/1706.03762</a></p>
+</li>
+<li>
+<p>Radford, Narasimhan, Salimans, Sutskever. <strong>Improving Language Understanding by Generative Pre-Training (GPT-1)</strong>. 2018.<br/>
+<a href="https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf" rel="noopener noreferrer" target="_blank">https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf</a></p>
+</li>
+<li>
+<p>Devlin, Chang, Lee, Toutanova. <strong>BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding</strong>. NAACL 2019.<br/>
+<a href="https://arxiv.org/abs/1810.04805" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/1810.04805</a></p>
+</li>
+<li>
+<p>Yang, Dai, Yang, et al. <strong>XLNet: Generalized Autoregressive Pretraining for Language Understanding</strong>. NeurIPS 2019.<br/>
+<a href="https://arxiv.org/abs/1906.08237" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/1906.08237</a></p>
+</li>
+<li>
+<p>Raffel, Shazeer, Roberts, et al. <strong>Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer (T5)</strong>. JMLR 2020.<br/>
+<a href="https://arxiv.org/abs/1910.10683" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/1910.10683</a></p>
+</li>
+<li>
+<p>Clark, Luong, Le, Manning. <strong>ELECTRA: Pre-training Text Encoders as Discriminators Rather Than Generators</strong>. ICLR 2020.<br/>
+<a href="https://arxiv.org/abs/2003.10555" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/2003.10555</a></p>
+</li>
+<li>
+<p>Kaplan, McCandlish, Henighan, et al. <strong>Scaling Laws for Neural Language Models</strong>. 2020.<br/>
+<a href="https://arxiv.org/abs/2001.08361" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/2001.08361</a></p>
+</li>
+<li>
+<p>Ouyang, Wu, Jiang, et al. <strong>Training Language Models to Follow Instructions with Human Feedback (InstructGPT)</strong>. NeurIPS 2022.<br/>
+<a href="https://arxiv.org/abs/2203.02155" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/2203.02155</a></p>
+</li>
+<li>
+<p>Touvron, Lavril, Izacard, et al. <strong>LLaMA: Open and Efficient Foundation Language Models</strong>. 2023.<br/>
+<a href="https://arxiv.org/abs/2302.13971" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/2302.13971</a></p>
+</li>
+<li>
+<p>Dao, Fu, Ermon, et al. <strong>FlashAttention: Fast and Memory-Efficient Exact Attention</strong>. NeurIPS 2022.<br/>
+<a href="https://arxiv.org/abs/2205.14135" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/2205.14135</a></p>
+</li>
+<li>
+<p>Gu, Dao. <strong>Mamba: Linear-Time Sequence Modeling with Selective State Spaces</strong>. 2023.<br/>
+<a href="https://arxiv.org/abs/2312.00752" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/2312.00752</a></p>
+</li>
+</ol> </div> </article> </main> <section id="contact" class="fade-in-up py-20 px-6 bg-bg-darkest"> <div class="max-w-6xl mx-auto">  <div class="text-center border-t border-white/5 pt-16"> <h2 class="text-3xl font-bold text-accent mb-4">联系我</h2> <p class="text-gray-400 mb-10 max-w-md mx-auto">
 我始终保持开放心态，期待新的机会和有趣的项目。
 </p> <div class="flex justify-center gap-4 mb-10"> <a href="https://github.com/lidongyao95" target="_blank" rel="noopener noreferrer" class="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-xs text-gray-400 hover:text-accent hover:border-accent/30 transition-all duration-300" aria-label="GitHub"> GH </a><a href="mailto:738401275@qq.com" target="_blank" rel="noopener noreferrer" class="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-xs text-gray-400 hover:text-accent hover:border-accent/30 transition-all duration-300" aria-label="Email"> 📧 </a> </div> <p class="text-xs text-gray-600 pb-4">
 &copy; 2026 Douglas Li. 保留所有权利。
