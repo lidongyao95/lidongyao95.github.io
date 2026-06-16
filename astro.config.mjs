@@ -6,4 +6,5 @@ export default defineConfig({
   integrations: [react(), tailwind()],
   site: 'https://lidongyao95.github.io',
   base: '/',
+  outDir: 'docs',
 });
