@@ -1,0 +1,173 @@
+<!DOCTYPE html><html lang="zh-CN"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Douglas Li — 软件工程师</title><meta name="description" content="一名软件工程师 & 终身学习者。"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="stylesheet" href="/_astro/_astro_content.CSqTBZnI.css"></head> <body class="min-h-screen bg-bg-darkest text-white antialiased"> <div class="cursor-orb" data-cursor-orb aria-hidden="true"></div> <div class="cursor-ring" data-cursor-ring aria-hidden="true"></div> <div class="neural-trail-layer" data-neural-trail-layer aria-hidden="true"></div>  <nav class="fixed top-0 left-0 right-0 z-50 bg-bg-darkest/80 backdrop-blur-md border-b border-white/5"> <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-accent font-bold text-lg font-mono">&lt;DL /&gt;</a> <div class="hidden md:flex gap-8"> <a href="/" class="text-sm text-gray-400 hover:text-accent transition-colors"> 首页 </a><a href="/#about" class="text-sm text-gray-400 hover:text-accent transition-colors"> 关于 </a><a href="/#projects" class="text-sm text-gray-400 hover:text-accent transition-colors"> 项目 </a><a href="/blog" class="text-sm text-gray-400 hover:text-accent transition-colors"> 博客 </a><a href="/#contact" class="text-sm text-gray-400 hover:text-accent transition-colors"> 联系 </a> </div> </div> </nav> <main class="pt-28 pb-20 px-6"> <article class="max-w-3xl mx-auto"> <a href="/blog" class="text-accent text-sm mb-8 inline-block hover:underline">
+&larr; 返回博客
+</a> <span class="text-xs text-gray-600"> 2026年6月18日 </span> <h1 class="text-4xl font-bold text-white mt-2 mb-8"> 模型训练范式：预训练与微调到底在做什么 </h1> <div class="prose prose-invert max-w-none text-gray-400
+        prose-headings:text-white prose-a:text-accent prose-strong:text-gray-200
+        prose-code:text-accent prose-pre:bg-bg-dark prose-pre:border prose-pre:border-white/5"> <h2 id="前言">前言</h2>
+<p>今天的大模型很少是「从零开始为某个任务训练」出来的。更常见的路线是：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>海量通用数据 → 预训练基础模型 → 针对任务微调 → 部署到具体场景</span></span></code></pre>
+<p>这条路线听起来简单，但里面有一个很关键的思想转变：模型不是先学某个具体任务，而是先学世界中大量可迁移的模式，再用少量数据把能力对齐到目标任务。</p>
+<p>这篇文章从最底层的问题开始：<strong>预训练到底学了什么？微调到底改了什么？为什么这套范式能让模型在很多任务上表现得更好？</strong></p>
+<h2 id="1-为什么需要预训练">1. 为什么需要预训练</h2>
+<p>假设你要训练一个文本分类模型，目标是判断一句评论是正面还是负面。</p>
+<p>如果只有 1000 条标注数据，从零训练一个神经网络会遇到两个问题：</p>
+<ul>
+<li><strong>数据太少</strong>：模型很容易记住训练样本，而不是学到真正的语言规律。</li>
+<li><strong>任务太窄</strong>：情感分类数据只告诉模型「这句话是正面还是负面」，却没有教它语法、常识、指代关系和上下文理解。</li>
+</ul>
+<p>人类学习也不是从「情感分类题库」开始的。我们先通过大量阅读和交流获得语言能力，然后才学习某个具体任务的判断标准。</p>
+<p>预训练就是这个思路的机器版本：先让模型在大规模通用数据上学习基础表示，再把这种表示迁移到下游任务。</p>
+<h2 id="2-预训练先学通用能力">2. 预训练：先学通用能力</h2>
+<p>预训练的核心是用海量数据训练一个基础模型。这里的数据通常不需要人工逐条标注，因为训练信号可以从数据本身构造出来。</p>
+<h3 id="21-语言模型的预训练目标">2.1 语言模型的预训练目标</h3>
+<p>以自回归语言模型为例，训练目标非常直接：</p>
+<blockquote>
+<p>给定前面的词，预测下一个词。</p>
+</blockquote>
+<p>例如：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>输入：机器学习的核心目标是让模型具备</span></span>
+<span class="line"><span>目标：泛化</span></span></code></pre>
+<p>模型每次预测下一个 token，如果预测错了，就通过反向传播更新参数。这个过程重复数万亿次后，模型为了降低预测错误，不得不学会很多隐藏规律：</p>
+<ul>
+<li>词语之间的搭配关系</li>
+<li>句法结构和长距离依赖</li>
+<li>常见事实和世界知识</li>
+<li>推理步骤的文本模式</li>
+<li>不同文体和领域的表达方式</li>
+</ul>
+<p>看起来只是「猜下一个词」，本质上却是在压缩数据分布。一个能持续预测文本的模型，必须在参数中存下大量关于语言和世界的统计结构。</p>
+<h3 id="22-表示学习把输入变成可用的内部结构">2.2 表示学习：把输入变成可用的内部结构</h3>
+<p>预训练不只是让模型背知识，更重要的是学到一种<strong>表示能力</strong>。</p>
+<p>一句话进入模型后，会被转成一层层向量表示。浅层可能更关注词形和局部搭配，深层可能更关注语义、关系和任务线索。训练越充分，这些向量越能把「表面不同但意义相近」的输入放到相近的位置。</p>
+<p>比如：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>这家店味道不错</span></span>
+<span class="line"><span>下次还会再来</span></span>
+<span class="line"><span>服务很糟糕</span></span></code></pre>
+<p>一个预训练好的模型，即使没专门学过情感分类，也往往已经能把前两句和第三句区分开，因为它在大量文本中见过类似表达的上下文。</p>
+<h2 id="3-微调把通用模型推向具体任务">3. 微调：把通用模型推向具体任务</h2>
+<p>预训练模型像一个知识面很广但还没有岗位说明书的人。微调就是给它具体任务、评价标准和输出格式。</p>
+<h3 id="31-监督微调">3.1 监督微调</h3>
+<p>最经典的微调方式是监督微调。我们准备一批输入和期望输出：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>输入</th><th>期望输出</th></tr></thead><tbody><tr><td>这个手机续航很强</td><td>正面</td></tr><tr><td>包装破损，客服也不处理</td><td>负面</td></tr><tr><td>请总结下面这段文字</td><td>一段摘要</td></tr></tbody></table>
+<p>训练时，模型先根据输入给出预测，再和期望输出计算损失，然后更新参数。</p>
+<p>这一步会改变模型的行为倾向：</p>
+<ul>
+<li>更熟悉任务的输入形式</li>
+<li>更稳定地产生目标格式</li>
+<li>更重视领域里的关键特征</li>
+<li>减少和任务无关的输出</li>
+</ul>
+<p>如果预训练是在建立「语言和世界的底座」，微调就是在这个底座上安装「任务接口」。</p>
+<h3 id="32-全量微调与参数高效微调">3.2 全量微调与参数高效微调</h3>
+<p>微调不一定要更新模型的全部参数。</p>
+<p><strong>全量微调</strong>会更新所有权重，优点是适应能力强，缺点是成本高、显存需求大，也更容易破坏原有能力。</p>
+<p><strong>参数高效微调</strong>只训练少量新增参数或低秩矩阵，例如 LoRA。它的思想是：基础模型里已经有大量可用能力，下游任务往往只需要一个小的方向调整。</p>
+<p>可以把基础模型想象成一张很复杂的地图。全量微调是重画整张地图，LoRA 更像是在地图上加几条新的路线标注。</p>
+<h2 id="4-指令微调让模型学会听懂任务">4. 指令微调：让模型学会听懂任务</h2>
+<p>大语言模型还有一种非常重要的微调：<strong>指令微调</strong>。</p>
+<p>普通预训练模型擅长续写文本，但不一定知道用户说「请解释这段代码」时应该真的解释代码。它可能继续补全一段类似网页、论坛或论文的文本。</p>
+<p>指令微调会使用大量这样的样本：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>用户：用通俗语言解释什么是梯度下降。</span></span>
+<span class="line"><span>助手：梯度下降可以理解为在山坡上找最低点……</span></span></code></pre>
+<p>模型由此学会：</p>
+<ul>
+<li>识别用户意图</li>
+<li>按要求组织答案</li>
+<li>遵守格式约束</li>
+<li>在对话中保持上下文</li>
+</ul>
+<p>这也是为什么基础模型、指令模型和聊天模型的体验差别很大。它们可能拥有相似的底层知识，但对「如何响应人类请求」的训练程度不同。</p>
+<h2 id="5-预训练和微调的区别">5. 预训练和微调的区别</h2>
+<p>可以从四个维度理解它们：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>维度</th><th>预训练</th><th>微调</th></tr></thead><tbody><tr><td>数据规模</td><td>极大</td><td>较小</td></tr><tr><td>数据类型</td><td>通用文本、代码、多模态数据</td><td>任务数据、领域数据、指令数据</td></tr><tr><td>训练目标</td><td>学习通用分布和表示</td><td>适配具体任务或行为</td></tr><tr><td>参数变化</td><td>从随机参数学到底座能力</td><td>在已有能力上定向调整</td></tr></tbody></table>
+<p>最关键的区别是：预训练提供能力上限，微调决定能力如何被调用。</p>
+<p>一个底座很弱的模型，微调再精细也很难突然变强；一个底座很强的模型，如果没有合适微调，也可能输出不稳定、不听指令或不符合业务格式。</p>
+<h2 id="6-微调不是万能的">6. 微调不是万能的</h2>
+<p>很多人把微调理解成「给模型灌知识」，这并不准确。</p>
+<p>微调更擅长改变行为模式，而不是大规模注入事实知识。如果目标是让模型掌握大量实时或私有资料，通常还需要结合检索增强生成（RAG）、工具调用或外部数据库。</p>
+<p>微调适合解决的问题包括：</p>
+<ul>
+<li>固定输出格式</li>
+<li>特定语气和角色</li>
+<li>领域任务的判断标准</li>
+<li>少量稳定的专业概念</li>
+<li>对内部流程的响应规范</li>
+</ul>
+<p>不太适合只靠微调解决的问题包括：</p>
+<ul>
+<li>频繁变化的事实</li>
+<li>大规模私有知识库问答</li>
+<li>需要严格可追溯来源的答案</li>
+<li>高精度数值计算和实时查询</li>
+</ul>
+<p>工程上常见的组合是：预训练模型提供通用能力，RAG 提供外部知识，微调提供稳定的任务行为。</p>
+<h2 id="7-一个直观例子">7. 一个直观例子</h2>
+<p>假设我们要做一个医疗问答助手。</p>
+<p><strong>预训练阶段</strong>让模型学会语言、医学文本的常见表达、基础推理结构和问答模式。</p>
+<p><strong>指令微调阶段</strong>让模型学会回答问题、拒绝不安全请求、说明不确定性。</p>
+<p><strong>领域微调阶段</strong>让模型熟悉医院内部的术语、分诊流程和标准话术。</p>
+<p><strong>RAG 阶段</strong>让模型在回答时检索最新指南、药品说明书和院内知识库。</p>
+<p>真正可靠的系统往往不是靠某一种训练技巧，而是把不同机制放在合适的位置。</p>
+<h2 id="结语">结语</h2>
+<p>预训练和微调是一套分工明确的范式：</p>
+<ul>
+<li>预训练负责从大规模数据中学习通用能力。</li>
+<li>微调负责把通用能力对齐到具体任务。</li>
+<li>指令微调让模型更像一个能协作的助手。</li>
+<li>参数高效微调让适配成本变得可控。</li>
+</ul>
+<p>理解这套范式后，再看大模型训练就不会只看到「堆数据、堆算力」。更本质的问题是：哪些能力应该在底座里形成，哪些行为应该通过微调塑形，哪些知识应该交给外部系统动态提供。</p> </div> </article> </main> <section id="contact" class="fade-in-up py-20 px-6 bg-bg-darkest"> <div class="max-w-6xl mx-auto">  <div class="text-center border-t border-white/5 pt-16"> <h2 class="text-3xl font-bold text-accent mb-4">联系我</h2> <p class="text-gray-400 mb-10 max-w-md mx-auto">
+我始终保持开放心态，期待新的机会和有趣的项目。
+</p> <div class="flex justify-center gap-4 mb-10"> <a href="https://github.com/lidongyao95" target="_blank" rel="noopener noreferrer" class="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-xs text-gray-400 hover:text-accent hover:border-accent/30 transition-all duration-300" aria-label="GitHub"> GH </a><a href="mailto:738401275@qq.com" target="_blank" rel="noopener noreferrer" class="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-xs text-gray-400 hover:text-accent hover:border-accent/30 transition-all duration-300" aria-label="Email"> 📧 </a> </div> <p class="text-xs text-gray-600 pb-4">
+&copy; 2026 Douglas Li. 保留所有权利。
+</p> </div>  </div> </section>  <script type="module">const $=window.matchMedia("(pointer: fine)").matches&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches,w=document.querySelector("[data-cursor-orb]"),x=document.querySelector("[data-cursor-ring]"),m=document.querySelector("[data-neural-trail-layer]");if($&&w&&x&&m){document.documentElement.classList.add("has-interactive-cursor");let t=window.innerWidth/2,e=window.innerHeight/2,o=t,a=e,l=0,c=null;const d=(n,s)=>{document.documentElement.style.setProperty("--pointer-x",`${n}px`),document.documentElement.style.setProperty("--pointer-y",`${s}px`)},g=(n,s)=>{const r=s.x-n.x,u=s.y-n.y,p=Math.hypot(r,u);if(p<8||p>180)return;const i=document.createElement("span");i.className="neural-trail-link",i.style.left=`${n.x}px`,i.style.top=`${n.y}px`,i.style.width=`${p}px`,i.style.transform=`rotate(${Math.atan2(u,r)}rad)`,m.append(i),window.setTimeout(()=>i.remove(),720)},f=(n,s)=>{const r=document.createElement("span");r.className="neural-trail-node",r.style.left=`${n}px`,r.style.top=`${s}px`,m.append(r),window.setTimeout(()=>r.remove(),720)},h=(n,s)=>{const r={x:n,y:s};f(n,s),c&&g(c,r),c=r},y=()=>{o+=(t-o)*.18,a+=(e-a)*.18,x.style.transform=`translate3d(${o}px, ${a}px, 0) translate(-50%, -50%)`,requestAnimationFrame(y)};d(t,e),y(),window.addEventListener("pointermove",n=>{t=n.clientX,e=n.clientY,w.style.transform=`translate3d(${t}px, ${e}px, 0) translate(-50%, -50%)`,d(t,e);const s=performance.now();s-l>42&&(h(t,e),l=s)}),window.addEventListener("pointerdown",()=>{document.documentElement.classList.add("is-pointer-pressing")}),window.addEventListener("pointerup",()=>{document.documentElement.classList.remove("is-pointer-pressing")})}document.querySelectorAll(".btn-glow, .card-glow").forEach(t=>{t.addEventListener("mousemove",e=>{const o=t.getBoundingClientRect();t.style.setProperty("--mx",`${e.clientX-o.left}px`),t.style.setProperty("--my",`${e.clientY-o.top}px`);const a=o.width/2,l=o.height/2,c=e.clientX-o.left-a,d=e.clientY-o.top-l;t.classList.contains("card-glow")&&(t.style.setProperty("--tilt-x",`${-d/l*7}deg`),t.style.setProperty("--tilt-y",`${c/a*9}deg`)),t.classList.contains("btn-glow")&&(t.style.setProperty("--magnet-x",`${c*.08}px`),t.style.setProperty("--magnet-y",`${d*.08}px`))}),t.addEventListener("mouseleave",()=>{t.classList.contains("card-glow")&&(t.style.setProperty("--tilt-x","0deg"),t.style.setProperty("--tilt-y","0deg")),t.classList.contains("btn-glow")&&(t.style.setProperty("--magnet-x","0px"),t.style.setProperty("--magnet-y","0px"))})});const v=new IntersectionObserver(t=>{t.forEach(e=>{e.isIntersecting&&e.target.classList.add("visible")})},{threshold:.1});document.querySelectorAll(".fade-in-up").forEach(t=>v.observe(t));</script> </body> </html>
