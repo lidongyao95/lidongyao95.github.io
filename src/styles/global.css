@@ -12,6 +12,154 @@ body {
   overflow-x: hidden;
 }
 
+.has-interactive-cursor body,
+.has-interactive-cursor a,
+.has-interactive-cursor button {
+  cursor: none;
+}
+
+.cursor-orb,
+.cursor-ring,
+.neural-trail-layer {
+  pointer-events: none;
+}
+
+.cursor-orb,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  z-index: 100;
+  transform: translate3d(var(--pointer-x, 50vw), var(--pointer-y, 50vh), 0) translate(-50%, -50%);
+}
+
+.has-interactive-cursor .cursor-orb,
+.has-interactive-cursor .cursor-ring {
+  opacity: 1;
+}
+
+.cursor-orb {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #00ff88;
+  box-shadow: 0 0 18px rgba(0, 255, 136, 0.85), 0 0 34px rgba(64, 196, 255, 0.34);
+  transition: opacity 0.2s ease;
+}
+
+.cursor-ring {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(0, 255, 136, 0.42);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(0, 255, 136, 0.08) 0%, rgba(0, 255, 136, 0) 60%),
+    linear-gradient(135deg, rgba(0, 255, 136, 0.08), rgba(64, 196, 255, 0.04));
+  box-shadow: inset 0 0 14px rgba(0, 255, 136, 0.16), 0 0 22px rgba(0, 255, 136, 0.12);
+  transition:
+    opacity 0.2s ease,
+    width 0.18s ease,
+    height 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.has-interactive-cursor.is-pointer-pressing .cursor-ring {
+  width: 28px;
+  height: 28px;
+  border-color: rgba(64, 196, 255, 0.8);
+}
+
+.neural-trail-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow: hidden;
+}
+
+.neural-trail-node,
+.neural-trail-link {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.neural-trail-node {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #00ff88;
+  box-shadow: 0 0 14px rgba(0, 255, 136, 0.7), 0 0 26px rgba(64, 196, 255, 0.3);
+  transform: translate(-50%, -50%);
+  animation: neuralTrailNode 720ms ease-out forwards;
+}
+
+.neural-trail-link {
+  height: 1px;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, rgba(0, 255, 136, 0), rgba(0, 255, 136, 0.68), rgba(64, 196, 255, 0));
+  animation: neuralTrailLink 720ms ease-out forwards;
+}
+
+#home::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    360px circle at var(--pointer-x, 50vw) var(--pointer-y, 50vh),
+    rgba(0, 255, 136, 0.13),
+    rgba(64, 196, 255, 0.05) 38%,
+    transparent 68%
+  );
+  transition: opacity 0.25s ease;
+}
+
+.has-interactive-cursor #home::before {
+  opacity: 1;
+}
+
+.particle-signal-field {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.particle-signal {
+  --signal-angle: -12deg;
+  position: absolute;
+  left: 0;
+  width: 46vw;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.75), rgba(64, 196, 255, 0.44), transparent);
+  box-shadow: 0 0 18px rgba(0, 255, 136, 0.38);
+  opacity: 0;
+  transform-origin: center;
+  animation: signalSweep 7.5s linear infinite;
+}
+
+.particle-signal-a {
+  top: 24%;
+  animation-delay: 0s;
+}
+
+.particle-signal-b {
+  --signal-angle: 9deg;
+  top: 52%;
+  animation-delay: 1.9s;
+}
+
+.particle-signal-c {
+  --signal-angle: -5deg;
+  top: 73%;
+  animation-delay: 4.2s;
+}
+
 /* Fade-in-up animation */
 .fade-in-up {
   opacity: 0;
@@ -28,6 +176,8 @@ body {
 .btn-glow {
   position: relative;
   overflow: hidden;
+  transform: translate3d(var(--magnet-x, 0), var(--magnet-y, 0), 0);
+  will-change: transform;
 }
 
 .btn-glow::after {
@@ -53,6 +203,31 @@ body {
 .card-glow {
   position: relative;
   overflow: hidden;
+  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(var(--card-lift, 0));
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition:
+    transform 0.24s ease,
+    border-color 0.3s ease,
+    background 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.card-glow:hover {
+  --card-lift: -6px;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28), 0 0 34px rgba(0, 255, 136, 0.08);
+}
+
+.card-glow > * {
+  transform: translateZ(18px);
+}
+
+.card-glow .project-card-visual {
+  transform: translateZ(28px);
+}
+
+.card-glow .project-card-copy {
+  transform: translateZ(20px);
 }
 
 .card-glow::after {
@@ -112,3 +287,59 @@ body {
 ::-webkit-scrollbar-track { background: #06060a; }
 ::-webkit-scrollbar-thumb { background: #1a1a2e; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #2a2a3e; }
+
+@keyframes neuralTrailNode {
+  0% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.4);
+  }
+}
+
+@keyframes neuralTrailLink {
+  0% {
+    opacity: 0.72;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes signalSweep {
+  0% {
+    opacity: 0;
+    transform: translate3d(-55vw, 0, 0) rotate(var(--signal-angle));
+  }
+  14% {
+    opacity: 0.82;
+  }
+  58% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(112vw, 0, 0) rotate(var(--signal-angle));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-orb,
+  .cursor-ring,
+  .neural-trail-node,
+  .neural-trail-link,
+  .particle-signal,
+  .card-glow,
+  .btn-glow {
+    animation: none;
+    transition: none;
+  }
+
+  .particle-signal-field,
+  .neural-trail-layer,
+  #home::before {
+    display: none;
+  }
+}
