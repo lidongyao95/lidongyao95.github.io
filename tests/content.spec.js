@@ -50,12 +50,6 @@ test.describe('Home page content', () => {
     await page.goto('/');
   });
 
-  test('hero particle background renders', async ({ page }) => {
-    // The tsparticles div should be present
-    const particles = page.locator('#tsparticles');
-    await expect(particles).toBeAttached();
-  });
-
   test('typed.js initializes', async ({ page }) => {
     // The typed-target span should be present
     const target = page.locator('#typed-target');

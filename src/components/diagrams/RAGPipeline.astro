@@ -1,0 +1,100 @@
+---
+const W = 640;
+const H = 340;
+
+const accent = '#e2a045';
+const dim = 'rgba(255,255,255,0.15)';
+const dimText = 'rgba(255,255,255,0.5)';
+const white = 'rgba(255,255,255,0.85)';
+
+const bw = 120;
+const bh = 32;
+const rx = 6;
+
+// Offline pipeline (left column)
+const oLeft = 20;
+const oCenter = oLeft + bw / 2;
+
+const offlineSteps = [
+  { y: 50, text: '原始文档', color: dim },
+  { y: 90, text: '文本抽取', color: accent, opacity: 0.25 },
+  { y: 130, text: '切分 Chunk', color: accent, opacity: 0.4 },
+  { y: 170, text: '生成 Embedding', color: accent, opacity: 0.55 },
+  { y: 210, text: '写入向量库', color: accent, opacity: 0.7 },
+];
+
+// Online pipeline (right column)
+const iLeft = 420;
+const iCenter = iLeft + bw / 2;
+
+const onlineSteps = [
+  { y: 50, text: '用户问题', color: dim },
+  { y: 90, text: '检索相关片段', color: accent, opacity: 0.3 },
+  { y: 130, text: '重排 & 压缩', color: accent, opacity: 0.5 },
+  { y: 170, text: '组装上下文', color: accent, opacity: 0.65 },
+  { y: 210, text: '大模型生成', color: accent, opacity: 0.85 },
+];
+
+const resultY = 260;
+const resultLeft = 420;
+const resultW = 200;
+const resultCenter = resultLeft + resultW / 2;
+---
+<svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" role="img" aria-label="RAG 双链路流程图：左侧离线链路（文档→向量库），右侧在线链路（问题→带依据的答案）" class="w-full max-w-2xl mx-auto">
+  <title>RAG 双链路流程图</title>
+  <defs>
+    <marker id="ragArr" viewBox="0 0 8 8" refX="4" refY="7" marker-width="5" marker-height="5" orient="auto">
+      <path d="M 0 0 L 4 8 L 8 0 z" fill={accent} opacity="0.5" />
+    </marker>
+  </defs>
+
+  <!-- Column headers -->
+  <text x={oCenter} y={28} text-anchor="middle" fill={white} font-size="14" font-weight="bold">📚 离线链路</text>
+  <text x={iCenter} y={28} text-anchor="middle" fill={white} font-size="14" font-weight="bold">⚡ 在线链路</text>
+
+  <!-- Divider -->
+  <line x1={W / 2 - 40} y1={38} x2={W / 2 - 40} y2={H - 30} stroke={dim} stroke-width="1" stroke-dasharray="6,4" />
+
+  <!-- Offline steps -->
+  {offlineSteps.map((s, i) => {
+    const fillOpacity = s.opacity ?? 0;
+    return (
+      <g>
+        <rect x={oLeft} y={s.y} width={bw} height={bh} rx={rx} fill={accent} fill-opacity={fillOpacity} stroke={s.color} stroke-width="1.2" />
+        <text x={oCenter} y={s.y + bh / 2 + 5} text-anchor="middle" fill="white" font-size="12">{s.text}</text>
+      </g>
+    );
+  })}
+  {offlineSteps.slice(0, -1).map((s, i) => (
+    <line x1={oCenter} y1={s.y + bh} x2={oCenter} y2={offlineSteps[i + 1].y} stroke={accent} stroke-opacity="0.45" stroke-width="1.2" marker-end="url(#ragArr)" />
+  ))}
+
+  <!-- Online steps -->
+  {onlineSteps.map((s, i) => {
+    const fillOpacity = s.opacity ?? 0;
+    return (
+      <g>
+        <rect x={iLeft} y={s.y} width={bw} height={bh} rx={rx} fill={accent} fill-opacity={fillOpacity} stroke={s.color} stroke-width="1.2" />
+        <text x={iCenter} y={s.y + bh / 2 + 5} text-anchor="middle" fill="white" font-size="12">{s.text}</text>
+      </g>
+    );
+  })}
+  {onlineSteps.slice(0, -1).map((s, i) => (
+    <line x1={iCenter} y1={s.y + bh} x2={iCenter} y2={onlineSteps[i + 1].y} stroke={accent} stroke-opacity="0.45" stroke-width="1.2" marker-end="url(#ragArr)" />
+  ))}
+
+  <!-- Result box -->
+  <rect x={resultLeft} y={resultY} width={resultW} height={bh} rx={rx} fill={accent} fill-opacity="0.15" stroke={accent} stroke-width="1.5" />
+  <text x={resultCenter} y={resultY + bh / 2 + 5} text-anchor="middle" fill={accent} font-size="13" font-weight="bold">带依据的答案 ✅</text>
+
+  <!-- Arrow from last online step to result -->
+  <line x1={iCenter} y1={onlineSteps[onlineSteps.length - 1].y + bh} x2={resultCenter} y2={resultY} stroke={accent} stroke-opacity="0.45" stroke-width="1.2" marker-end="url(#ragArr)" />
+
+  <!-- Cross-link: vector DB feeds retrieval -->
+  <path d={`M${oLeft + bw},${offlineSteps[offlineSteps.length - 1].y + bh / 2} L${W / 2 - 40},${offlineSteps[offlineSteps.length - 1].y + bh / 2} L${W / 2 - 40},${onlineSteps[1].y + bh / 2} L${iLeft},${onlineSteps[1].y + bh / 2}`} fill="none" stroke={accent} stroke-opacity="0.3" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#ragArr)" />
+  <text x={W / 2 - 44} y={offlineSteps[offlineSteps.length - 1].y - 4} text-anchor="end" fill={dimText} font-size="10">向量库 → 供检索使用</text>
+
+  <!-- Bottom labels -->
+  <text x={oCenter} y={H - 14} text-anchor="middle" fill={dimText} font-size="11">知识库构建（一次性或定期更新）</text>
+  <text x={iCenter} y={H - 14} text-anchor="middle" fill={dimText} font-size="11">每次提问都会执行的流程</text>
+</svg>

@@ -7,7 +7,7 @@ html {
 }
 
 body {
-  background-color: #06060a;
+  background-color: #08091a;
   color: #ffffff;
   overflow-x: hidden;
 }
@@ -43,20 +43,20 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: #00ff88;
-  box-shadow: 0 0 18px rgba(0, 255, 136, 0.85), 0 0 34px rgba(64, 196, 255, 0.34);
+  background: #e2a045;
+  box-shadow: 0 0 18px rgba(226, 160, 69, 0.85), 0 0 34px rgba(99, 102, 241, 0.34);
   transition: opacity 0.2s ease;
 }
 
 .cursor-ring {
   width: 38px;
   height: 38px;
-  border: 1px solid rgba(0, 255, 136, 0.42);
+  border: 1px solid rgba(226, 160, 69, 0.42);
   border-radius: 999px;
   background:
-    radial-gradient(circle, rgba(0, 255, 136, 0.08) 0%, rgba(0, 255, 136, 0) 60%),
-    linear-gradient(135deg, rgba(0, 255, 136, 0.08), rgba(64, 196, 255, 0.04));
-  box-shadow: inset 0 0 14px rgba(0, 255, 136, 0.16), 0 0 22px rgba(0, 255, 136, 0.12);
+    radial-gradient(circle, rgba(226, 160, 69, 0.08) 0%, rgba(226, 160, 69, 0) 60%),
+    linear-gradient(135deg, rgba(226, 160, 69, 0.08), rgba(99, 102, 241, 0.04));
+  box-shadow: inset 0 0 14px rgba(226, 160, 69, 0.16), 0 0 22px rgba(226, 160, 69, 0.12);
   transition:
     opacity 0.2s ease,
     width 0.18s ease,
@@ -67,7 +67,7 @@ body {
 .has-interactive-cursor.is-pointer-pressing .cursor-ring {
   width: 28px;
   height: 28px;
-  border-color: rgba(64, 196, 255, 0.8);
+  border-color: rgba(99, 102, 241, 0.8);
 }
 
 .neural-trail-layer {
@@ -88,17 +88,17 @@ body {
   width: 7px;
   height: 7px;
   border-radius: 999px;
-  background: #00ff88;
-  box-shadow: 0 0 14px rgba(0, 255, 136, 0.7), 0 0 26px rgba(64, 196, 255, 0.3);
+  background: #e2a045;
+  box-shadow: 0 0 14px rgba(226, 160, 69, 0.7), 0 0 26px rgba(99, 102, 241, 0.3);
   transform: translate(-50%, -50%);
-  animation: neuralTrailNode 720ms ease-out forwards;
+  animation: neuralTrailNode 560ms ease-out forwards;
 }
 
 .neural-trail-link {
   height: 1px;
   transform-origin: 0 50%;
-  background: linear-gradient(90deg, rgba(0, 255, 136, 0), rgba(0, 255, 136, 0.68), rgba(64, 196, 255, 0));
-  animation: neuralTrailLink 720ms ease-out forwards;
+  background: linear-gradient(90deg, rgba(226, 160, 69, 0), rgba(226, 160, 69, 0.68), rgba(99, 102, 241, 0));
+  animation: neuralTrailLink 560ms ease-out forwards;
 }
 
 #home::before {
@@ -110,8 +110,8 @@ body {
   opacity: 0;
   background: radial-gradient(
     360px circle at var(--pointer-x, 50vw) var(--pointer-y, 50vh),
-    rgba(0, 255, 136, 0.13),
-    rgba(64, 196, 255, 0.05) 38%,
+    rgba(226, 160, 69, 0.13),
+    rgba(99, 102, 241, 0.05) 38%,
     transparent 68%
   );
   transition: opacity 0.25s ease;
@@ -121,7 +121,7 @@ body {
   opacity: 1;
 }
 
-.particle-signal-field {
+.aurora-field {
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -130,34 +130,99 @@ body {
   mix-blend-mode: screen;
 }
 
-.particle-signal {
-  --signal-angle: -12deg;
+.aurora-blob {
   position: absolute;
-  left: 0;
-  width: 46vw;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.75), rgba(64, 196, 255, 0.44), transparent);
-  box-shadow: 0 0 18px rgba(0, 255, 136, 0.38);
-  opacity: 0;
-  transform-origin: center;
-  animation: signalSweep 7.5s linear infinite;
+  width: 50vw;
+  height: 50vh;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.7;
 }
 
-.particle-signal-a {
-  top: 24%;
-  animation-delay: 0s;
+.aurora-blob-1 {
+  top: 15%;
+  left: 20%;
+  background: radial-gradient(circle, rgba(226, 160, 69, 0.14), rgba(99, 102, 241, 0.06) 40%, transparent 70%);
 }
 
-.particle-signal-b {
-  --signal-angle: 9deg;
-  top: 52%;
-  animation-delay: 1.9s;
+.aurora-blob-2 {
+  top: 55%;
+  left: 55%;
+  opacity: 0.62;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.12), rgba(226, 160, 69, 0.05) 40%, transparent 70%);
 }
 
-.particle-signal-c {
-  --signal-angle: -5deg;
-  top: 73%;
-  animation-delay: 4.2s;
+.aurora-blob-3 {
+  top: 35%;
+  left: 40%;
+  width: 35vw;
+  height: 35vh;
+  opacity: 0.5;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.08), rgba(99, 102, 241, 0.04) 40%, transparent 70%);
+}
+
+/* Milky way band — a static diagonal luminous stripe */
+.milky-way-band {
+  position: absolute;
+  width: 130%;
+  height: 130%;
+  top: -15%;
+  left: -15%;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    transparent 20%,
+    rgba(180, 160, 220, 0.03) 32%,
+    rgba(200, 180, 240, 0.06) 40%,
+    rgba(180, 160, 220, 0.04) 50%,
+    rgba(160, 140, 200, 0.03) 60%,
+    transparent 72%
+  );
+  filter: blur(40px);
+}
+
+/* Star field — larger than viewport so the edges stay filled */
+.star-field {
+  position: absolute;
+  width: 130%;
+  height: 130%;
+  top: -15%;
+  left: -15%;
+  z-index: 1;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.star {
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.star--warm {
+  background: rgba(226, 200, 160, 0.9);
+}
+
+.star--milky {
+  background: rgba(200, 185, 220, 0.8);
+}
+
+.star--warm.star--milky {
+  background: rgba(220, 195, 180, 0.85);
+}
+
+.star--twinkle {
+  animation: starTwinkle ease-in-out infinite;
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: var(--star-base-opacity, 0.3);
+  }
+  50% {
+    opacity: 0.02;
+  }
 }
 
 /* Fade-in-up animation */
@@ -188,7 +253,7 @@ body {
   transform: translate(-50%, -50%);
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(0, 255, 136, 0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(226, 160, 69, 0.12) 0%, transparent 70%);
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;
@@ -215,7 +280,7 @@ body {
 
 .card-glow:hover {
   --card-lift: -6px;
-  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28), 0 0 34px rgba(0, 255, 136, 0.08);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28), 0 0 34px rgba(226, 160, 69, 0.08);
 }
 
 .card-glow > * {
@@ -238,7 +303,7 @@ body {
   transform: translate(-50%, -50%);
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(0, 255, 136, 0.05) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(226, 160, 69, 0.05) 0%, transparent 70%);
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;
@@ -270,7 +335,7 @@ body {
   padding: 0.75rem 1rem;
   text-align: left;
   font-weight: 600;
-  color: #00ff88;
+  color: #e2a045;
 }
 
 .prose td {
@@ -284,9 +349,9 @@ body {
 
 /* Scrollbar styling */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #06060a; }
-::-webkit-scrollbar-thumb { background: #1a1a2e; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #2a2a3e; }
+::-webkit-scrollbar-track { background: #08091a; }
+::-webkit-scrollbar-thumb { background: #162040; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2a2a4e; }
 
 @keyframes neuralTrailNode {
   0% {
@@ -308,36 +373,30 @@ body {
   }
 }
 
-@keyframes signalSweep {
-  0% {
-    opacity: 0;
-    transform: translate3d(-55vw, 0, 0) rotate(var(--signal-angle));
-  }
-  14% {
-    opacity: 0.82;
-  }
-  58% {
-    opacity: 0.3;
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(112vw, 0, 0) rotate(var(--signal-angle));
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .cursor-orb,
   .cursor-ring,
   .neural-trail-node,
   .neural-trail-link,
-  .particle-signal,
+  .aurora-blob,
+  .star--twinkle,
+  .star-field,
+  .milky-way-band,
   .card-glow,
   .btn-glow {
     animation: none;
     transition: none;
   }
 
-  .particle-signal-field,
+  .aurora-blob {
+    opacity: 0.06;
+  }
+
+  .star-field,
+  .milky-way-band {
+    transform: none;
+  }
+
   .neural-trail-layer,
   #home::before {
     display: none;

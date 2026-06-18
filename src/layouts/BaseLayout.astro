@@ -76,10 +76,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         let ringY = pointerY;
         let lastTrailAt = 0;
         let lastTrailPoint = null;
+        let needsPointerRender = true;
+        let lastSpotlightAt = 0;
+        let spotlightX = pointerX;
+        let spotlightY = pointerY;
 
-        // Performance: cap concurrent live trail nodes
-        const MAX_LIVE_NODES = 30;
-        let liveNodes = 0;
+        // Performance: cap and pace DOM-based trail elements during sustained movement.
+        const MAX_LIVE_TRAIL_ELEMENTS = 14;
+        const TRAIL_INTERVAL_MS = 96;
+        const TRAIL_LIFETIME_MS = 560;
+        const MIN_TRAIL_DISTANCE = 28;
+        const SPOTLIGHT_INTERVAL_MS = 50;
+        let liveTrailElements = 0;
 
         // Performance: rAF loop termination on convergence
         let rAFId = 0;
@@ -88,6 +96,14 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         const setPointerVars = (x, y) => {
           document.documentElement.style.setProperty('--pointer-x', `${x}px`);
           document.documentElement.style.setProperty('--pointer-y', `${y}px`);
+          spotlightX = x;
+          spotlightY = y;
+        };
+
+        const renderSpotlight = (now, force = false) => {
+          if (!force && now - lastSpotlightAt < SPOTLIGHT_INTERVAL_MS) return;
+          setPointerVars(pointerX, pointerY);
+          lastSpotlightAt = now;
         };
 
         const drawTrailLink = (from, to) => {
@@ -104,8 +120,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           link.style.width = `${distance}px`;
           link.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
           trailLayer.append(link);
-          liveNodes++;
-          window.setTimeout(() => { link.remove(); liveNodes--; }, 720);
+          liveTrailElements++;
+          window.setTimeout(() => {
+            link.remove();
+            liveTrailElements = Math.max(0, liveTrailElements - 1);
+          }, TRAIL_LIFETIME_MS);
         };
 
         const drawTrailNode = (x, y) => {
@@ -114,19 +133,41 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           node.style.left = `${x}px`;
           node.style.top = `${y}px`;
           trailLayer.append(node);
-          liveNodes++;
-          window.setTimeout(() => { node.remove(); liveNodes--; }, 720);
+          liveTrailElements++;
+          window.setTimeout(() => {
+            node.remove();
+            liveTrailElements = Math.max(0, liveTrailElements - 1);
+          }, TRAIL_LIFETIME_MS);
         };
 
-        const spawnTrail = (x, y) => {
-          if (liveNodes >= MAX_LIVE_NODES) return;
+        const spawnTrail = (x, y, now) => {
+          if (liveTrailElements >= MAX_LIVE_TRAIL_ELEMENTS) return;
+          if (now - lastTrailAt < TRAIL_INTERVAL_MS) return;
+
           const nextPoint = { x, y };
+          if (lastTrailPoint) {
+            const dx = nextPoint.x - lastTrailPoint.x;
+            const dy = nextPoint.y - lastTrailPoint.y;
+            if (Math.hypot(dx, dy) < MIN_TRAIL_DISTANCE) return;
+          }
+
           drawTrailNode(x, y);
           if (lastTrailPoint) drawTrailLink(lastTrailPoint, nextPoint);
           lastTrailPoint = nextPoint;
+          lastTrailAt = now;
+        };
+
+        const renderPointer = (now) => {
+          cursorOrb.style.transform = `translate3d(${pointerX}px, ${pointerY}px, 0) translate(-50%, -50%)`;
+          renderSpotlight(now);
+          spawnTrail(pointerX, pointerY, now);
+          needsPointerRender = false;
         };
 
         const animateCursor = () => {
+          const now = performance.now();
+          if (needsPointerRender) renderPointer(now);
+
           ringX += (pointerX - ringX) * 0.18;
           ringY += (pointerY - ringY) * 0.18;
           cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
@@ -134,7 +175,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           // Terminate loop when ring converges to pointer position
           const deltaX = Math.abs(ringX - pointerX);
           const deltaY = Math.abs(ringY - pointerY);
-          if (deltaX < 0.5 && deltaY < 0.5) {
+          if (!needsPointerRender && deltaX < 0.5 && deltaY < 0.5) {
+            if (spotlightX !== pointerX || spotlightY !== pointerY) renderSpotlight(now, true);
             isAnimating = false;
             return;
           }
@@ -154,17 +196,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         window.addEventListener('pointermove', (event) => {
           pointerX = event.clientX;
           pointerY = event.clientY;
-          cursorOrb.style.transform = `translate3d(${pointerX}px, ${pointerY}px, 0) translate(-50%, -50%)`;
-          setPointerVars(pointerX, pointerY);
-
+          needsPointerRender = true;
           startAnimation();
-
-          const now = performance.now();
-          if (now - lastTrailAt > 42) {
-            spawnTrail(pointerX, pointerY);
-            lastTrailAt = now;
-          }
-        });
+        }, { passive: true });
 
         // Stop animation when pointer leaves the window
         document.addEventListener('mouseleave', () => {
@@ -183,15 +217,22 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
       // Button & card glow effect — tracks mouse position
       document.querySelectorAll('.btn-glow, .card-glow').forEach((el) => {
-        el.addEventListener('mousemove', (e) => {
+        let hoverFrameId = 0;
+        let latestHoverEvent = null;
+
+        const renderHoverEffect = () => {
+          hoverFrameId = 0;
+          if (!latestHoverEvent) return;
+
+          const { clientX, clientY } = latestHoverEvent;
           const rect = el.getBoundingClientRect();
-          el.style.setProperty('--mx', `${e.clientX - rect.left}px`);
-          el.style.setProperty('--my', `${e.clientY - rect.top}px`);
+          el.style.setProperty('--mx', `${clientX - rect.left}px`);
+          el.style.setProperty('--my', `${clientY - rect.top}px`);
 
           const centerX = rect.width / 2;
           const centerY = rect.height / 2;
-          const offsetX = e.clientX - rect.left - centerX;
-          const offsetY = e.clientY - rect.top - centerY;
+          const offsetX = clientX - rect.left - centerX;
+          const offsetY = clientY - rect.top - centerY;
 
           if (el.classList.contains('card-glow')) {
             el.style.setProperty('--tilt-x', `${(-offsetY / centerY) * 7}deg`);
@@ -202,9 +243,20 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
             el.style.setProperty('--magnet-x', `${offsetX * 0.08}px`);
             el.style.setProperty('--magnet-y', `${offsetY * 0.08}px`);
           }
-        });
+        };
+
+        el.addEventListener('mousemove', (e) => {
+          latestHoverEvent = { clientX: e.clientX, clientY: e.clientY };
+          if (!hoverFrameId) hoverFrameId = requestAnimationFrame(renderHoverEffect);
+        }, { passive: true });
 
         el.addEventListener('mouseleave', () => {
+          latestHoverEvent = null;
+          if (hoverFrameId) {
+            cancelAnimationFrame(hoverFrameId);
+            hoverFrameId = 0;
+          }
+
           if (el.classList.contains('card-glow')) {
             el.style.setProperty('--tilt-x', '0deg');
             el.style.setProperty('--tilt-y', '0deg');

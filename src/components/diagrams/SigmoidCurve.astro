@@ -24,7 +24,7 @@ const yTicks = [0, 0.25, 0.5, 0.75, 1.0];
   <defs>
     <linearGradient id="sg" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="currentColor" stop-opacity="0.1" />
-      <stop offset="0.5" stop-color="#00ff88" stop-opacity="0.3" />
+      <stop offset="0.5" stop-color="#e2a045" stop-opacity="0.3" />
       <stop offset="1" stop-color="currentColor" stop-opacity="0.1" />
     </linearGradient>
     <clipPath id="plotClip">
@@ -39,7 +39,7 @@ const yTicks = [0, 0.25, 0.5, 0.75, 1.0];
   <line x1={pad.left} y1={yToPx(0)} x2={pad.left + pw} y2={yToPx(0)} stroke="currentColor" stroke-opacity="0.3" />
   <line x1={xToPx(0)} y1={pad.top} x2={xToPx(0)} y2={pad.top + ph} stroke="currentColor" stroke-opacity="0.3" />
 
-  <path d={pathD} fill="none" stroke="#00ff88" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <path d={pathD} fill="none" stroke="#e2a045" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
 
   <line x1={pad.left} y1={yToPx(0.5)} x2={pad.left + pw} y2={yToPx(0.5)} stroke="currentColor" stroke-opacity="0.12" stroke-dasharray="4,4" />
 
@@ -58,5 +58,5 @@ const yTicks = [0, 0.25, 0.5, 0.75, 1.0];
   <text x={pad.left + pw / 2} y={H - 8} text-anchor="middle" fill="currentColor" opacity="0.7" font-size="13">z</text>
   <text x={14} y={pad.top + ph / 2} text-anchor="middle" fill="currentColor" opacity="0.7" font-size="13" transform={`rotate(-90, 14, ${pad.top + ph / 2})`}>σ(z)</text>
 
-  <circle cx={xToPx(0)} cy={yToPx(0.5)} r="5" fill="#00ff88" opacity="0.6" />
+  <circle cx={xToPx(0)} cy={yToPx(0.5)} r="5" fill="#e2a045" opacity="0.6" />
 </svg>

@@ -3,6 +3,7 @@ import { getBlogPosts } from '../scripts/blog-posts.js';
 
 const blogPosts = getBlogPosts();
 const samplePost = blogPosts.find((post) => post.slug === 'nn-classification') ?? blogPosts[0];
+const desktopNavLinks = (page) => page.locator('nav .hidden.md\\:flex');
 
 test.describe('Home page', () => {
   test.beforeEach(async ({ page }) => {
@@ -52,8 +53,8 @@ test.describe('Navigation', () => {
     await page.goto('/');
 
     // Check all nav links exist
-    const nav = page.locator('nav');
-    await expect(nav.locator('a[href="/"]').first()).toBeVisible();
+    const nav = desktopNavLinks(page);
+    await expect(page.locator('nav a[href="/"]').first()).toBeVisible();
     await expect(nav.locator('a[href="/#about"]')).toBeVisible();
     await expect(nav.locator('a[href="/#projects"]')).toBeVisible();
     await expect(nav.locator('a[href="/blog"]')).toBeVisible();
@@ -78,7 +79,7 @@ test.describe('Navigation', () => {
     await page.goto(samplePost.href);
 
     // Click 关于 from blog post → goes to /#about
-    await page.locator('nav a[href="/#about"]').click();
+    await desktopNavLinks(page).locator('a[href="/#about"]').click();
     await expect(page).toHaveURL('/#about');
     await expect(page.locator('#about')).toBeVisible();
   });
@@ -86,7 +87,7 @@ test.describe('Navigation', () => {
   test('nav 联系 link scrolls to contact section', async ({ page }) => {
     await page.goto('/');
 
-    await page.locator('nav a[href="/#contact"]').click();
+    await desktopNavLinks(page).locator('a[href="/#contact"]').click();
     await expect(page).toHaveURL('/#contact');
     await expect(page.locator('#contact')).toBeVisible();
   });
