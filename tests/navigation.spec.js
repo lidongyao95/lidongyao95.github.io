@@ -92,8 +92,11 @@ test.describe('Navigation', () => {
 });
 
 test.describe('Blog pages', () => {
-  test('blog listing shows both posts', async ({ page }) => {
+  test('blog listing shows all posts', async ({ page }) => {
     await page.goto('/blog');
+    await expect(page.locator('a[href="/blog/generalization-and-interpretability"]')).toBeVisible();
+    await expect(page.locator('a[href="/blog/pretraining-and-finetuning"]')).toBeVisible();
+    await expect(page.locator('a[href="/blog/transformer-architecture"]')).toBeVisible();
     await expect(page.locator('a[href="/blog/hello-world"]')).toBeVisible();
     await expect(page.locator('a[href="/blog/nn-classification"]')).toBeVisible();
   });

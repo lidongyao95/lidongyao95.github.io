@@ -75,7 +75,9 @@ test.describe('Home page content', () => {
   test('blog preview has posts', async ({ page }) => {
     const postLinks = page.locator('#blog a[href^="/blog/"]');
     const count = await postLinks.count();
-    expect(count).toBeGreaterThanOrEqual(1);
+    expect(count).toBeGreaterThanOrEqual(3);
+    await expect(page.locator('#blog')).toContainText('模型的泛化能力');
+    await expect(page.locator('#blog')).toContainText('模型训练范式');
   });
 
   test('footer has copyright and year', async ({ page }) => {
@@ -126,7 +128,12 @@ test.describe('Cross-page consistency', () => {
 
       // Verify a sample of critical links by actually navigating
       const criticalLinks = hrefs.filter(
-        (h) => h === '/blog' || h === '/blog/hello-world' || h === '/blog/nn-classification'
+        (h) =>
+          h === '/blog' ||
+          h === '/blog/generalization-and-interpretability' ||
+          h === '/blog/pretraining-and-finetuning' ||
+          h === '/blog/hello-world' ||
+          h === '/blog/nn-classification'
       );
       for (const href of [...new Set(criticalLinks)]) {
         const resp = await page.goto(href);

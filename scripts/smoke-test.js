@@ -84,8 +84,9 @@ console.log('\n🏠 Home page');
 
   // Blog preview shows latest post
   const blogLinks = $('#blog a[href^="/blog"]');
-  assert(blogLinks.length >= 2, 'blog preview has post links');
-  assert($('#blog').text().includes('神经网络分类'), 'blog preview shows nn-classification post');
+  assert(blogLinks.length >= 3, 'blog preview has latest post links');
+  assert($('#blog').text().includes('模型的泛化能力'), 'blog preview shows generalization post');
+  assert($('#blog').text().includes('模型训练范式'), 'blog preview shows pretraining post');
 
   // Project cards link to GitHub
   const projectLinks = $('#projects a[href*="github.com"]');
@@ -132,7 +133,10 @@ console.log('\n📋 Blog listing');
 
   assert($('h1').text().includes('博客'), 'blog listing title = 博客');
   const postLinks = $('a[href^="/blog/"]');
-  assert(postLinks.length >= 2, `blog listing has >= 2 posts (found ${postLinks.length})`);
+  assert(postLinks.length >= 5, `blog listing has >= 5 posts (found ${postLinks.length})`);
+  assert($('body').text().includes('模型的泛化能力'), 'blog listing shows generalization post');
+  assert($('body').text().includes('模型训练范式'), 'blog listing shows pretraining post');
+  assert($('body').text().includes('Transformer 架构详解'), 'blog listing shows transformer post');
   assert($('body').text().includes('神经网络分类'), 'blog listing shows nn-classification');
   assert($('body').text().includes('你好，世界'), 'blog listing shows hello-world');
 }
