@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://lidongyao95.github.io/sitemap-index.xml

@@ -7,7 +7,7 @@ import * as path from 'node:path';
 import * as cheerio from 'cheerio';
 import { getBlogPosts, getLatestBlogPosts } from './blog-posts.js';
 
-const DOCS_DIR = path.resolve('docs');
+const DIST_DIR = path.resolve('dist');
 const blogPosts = getBlogPosts();
 const blogPostHrefs = new Set(blogPosts.map((post) => post.href));
 let errors = 0;
@@ -30,12 +30,12 @@ function walkHtml(dir) {
   return files;
 }
 
-const files = walkHtml(DOCS_DIR);
+const files = walkHtml(DIST_DIR);
 
 // ── File existence & basic validity ──
 console.log('\n📄 Page existence & validity');
 for (const file of files) {
-  const rel = path.relative(DOCS_DIR, file);
+  const rel = path.relative(DIST_DIR, file);
   const html = fs.readFileSync(file, 'utf-8');
   const $ = cheerio.load(html);
 
@@ -49,7 +49,7 @@ for (const file of files) {
 // ── Home page ──
 console.log('\n🏠 Home page');
 {
-  const $ = cheerio.load(fs.readFileSync(path.join(DOCS_DIR, 'index.html'), 'utf-8'));
+  const $ = cheerio.load(fs.readFileSync(path.join(DIST_DIR, 'index.html'), 'utf-8'));
 
   // Language
   assert($('html').attr('lang') === 'zh-CN', 'lang="zh-CN"');
@@ -120,7 +120,7 @@ console.log('\n🏠 Home page');
 // ── Nav (shared across all pages) ──
 console.log('\n🧭 Navigation');
 for (const file of files) {
-  const rel = path.relative(DOCS_DIR, file);
+  const rel = path.relative(DIST_DIR, file);
   const $ = cheerio.load(fs.readFileSync(file, 'utf-8'));
 
   const navLinks = $('nav a');
@@ -138,7 +138,7 @@ for (const file of files) {
 // ── Blog listing page ──
 console.log('\n📋 Blog listing');
 {
-  const $ = cheerio.load(fs.readFileSync(path.join(DOCS_DIR, 'blog/index.html'), 'utf-8'));
+  const $ = cheerio.load(fs.readFileSync(path.join(DIST_DIR, 'blog/index.html'), 'utf-8'));
 
   assert($('h1').text().includes('博客'), 'blog listing title = 博客');
   assert($('[data-cursor-orb]').length === 0, 'blog listing does not render custom cursor');
@@ -155,7 +155,7 @@ console.log('\n📋 Blog listing');
 // ── Blog post table of contents ──
 console.log('\n📚 Blog post table of contents');
 for (const post of blogPosts.filter((item) => item.headings.length > 0)) {
-  const htmlPath = path.join(DOCS_DIR, 'blog', post.slug, 'index.html');
+  const htmlPath = path.join(DIST_DIR, 'blog', post.slug, 'index.html');
   const $ = cheerio.load(fs.readFileSync(htmlPath, 'utf-8'));
   const toc = $('[data-testid="post-toc"]');
   assert($('[data-cursor-orb]').length === 0, `${post.slug}: does not render custom cursor`);
@@ -169,7 +169,7 @@ for (const post of blogPosts.filter((item) => item.headings.length > 0)) {
 // ── Blog post: nn-classification ──
 console.log('\n📝 Blog post: nn-classification');
 {
-  const $ = cheerio.load(fs.readFileSync(path.join(DOCS_DIR, 'blog/nn-classification/index.html'), 'utf-8'));
+  const $ = cheerio.load(fs.readFileSync(path.join(DIST_DIR, 'blog/nn-classification/index.html'), 'utf-8'));
 
   // Back link
   const backLink = $('a[href="/blog"]');
@@ -203,7 +203,7 @@ console.log('\n📝 Blog post: nn-classification');
 // ── Blog routes generated for every content file ──
 console.log('\n🧾 Blog route coverage');
 blogPosts.forEach((post) => {
-  const htmlPath = path.join(DOCS_DIR, 'blog', post.slug, 'index.html');
+  const htmlPath = path.join(DIST_DIR, 'blog', post.slug, 'index.html');
   assert(fs.existsSync(htmlPath), `${post.slug}: generated HTML exists`);
   assert(blogPostHrefs.has(post.href), `${post.slug}: registered expected href`);
 });
@@ -211,7 +211,7 @@ blogPosts.forEach((post) => {
 // ── External link audit ──
 console.log('\n🔗 External links');
 for (const file of files) {
-  const rel = path.relative(DOCS_DIR, file);
+  const rel = path.relative(DIST_DIR, file);
   const $ = cheerio.load(fs.readFileSync(file, 'utf-8'));
   $('a[href^="http"]').each((_, el) => {
     const href = $(el).attr('href');

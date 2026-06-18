@@ -12,7 +12,7 @@ export default defineConfig({
   integrations: [react(), tailwind(), mdx(), sitemap()],
   site: 'https://lidongyao95.github.io',
   base: '/',
-  outDir: 'docs',
+  outDir: 'dist',
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath],

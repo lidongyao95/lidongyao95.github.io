@@ -2,5 +2,6 @@
 .astro/
 node_modules/
 dist/
+docs/
 test-results/
 .DS_Store
