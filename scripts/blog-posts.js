@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import matter from 'gray-matter';
 
 const BLOG_DIR = path.resolve('src/content/blog');
 
@@ -16,35 +17,13 @@ function listContentFiles(dir) {
   return files;
 }
 
-function stripQuotes(value) {
-  const trimmed = value.trim();
-  const quote = trimmed[0];
-  if ((quote === '"' || quote === "'") && trimmed.at(-1) === quote) {
-    return trimmed.slice(1, -1);
-  }
-  return trimmed;
-}
-
-function parseFrontmatter(source) {
-  const match = source.match(/^---\n([\s\S]*?)\n---/);
-  const frontmatter = {};
-  if (!match) return frontmatter;
-
-  for (const line of match[1].split('\n')) {
-    const field = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
-    if (field) {
-      frontmatter[field[1]] = stripQuotes(field[2]);
-    }
-  }
-  return frontmatter;
-}
-
 function parseHeadings(source) {
-  const body = source.replace(/^---\n[\s\S]*?\n---\n?/, '');
+  const body = matter.stringify('', matter(source).data).replace(/^---\n[\s\S]*?\n---\n?/, '');
+  const contentBody = source.replace(/^---\n[\s\S]*?\n---\n?/, '');
   const headings = [];
   let inFence = false;
 
-  for (const line of body.split('\n')) {
+  for (const line of contentBody.split('\n')) {
     if (/^\s*(```|~~~)/.test(line)) {
       inFence = !inFence;
       continue;
@@ -75,7 +54,7 @@ export function getBlogPosts() {
   return listContentFiles(BLOG_DIR)
     .map((file) => {
       const source = fs.readFileSync(file, 'utf-8');
-      const data = parseFrontmatter(source);
+      const { data } = matter(source);
       const slug = slugFromFile(file);
 
       return {

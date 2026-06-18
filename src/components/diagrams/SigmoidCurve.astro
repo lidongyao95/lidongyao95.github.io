@@ -1,0 +1,62 @@
+---
+const W = 480;
+const H = 260;
+const pad = { top: 30, right: 40, bottom: 50, left: 60 };
+const pw = W - pad.left - pad.right;
+const ph = H - pad.top - pad.bottom;
+
+const xToPx = (x: number) => pad.left + ((x + 6) / 12) * pw;
+const yToPx = (y: number) => pad.top + (1 - y) * ph;
+const sigmoid = (z: number) => 1 / (1 + Math.exp(-z));
+
+const points: { x: number; y: number }[] = [];
+for (let i = 0; i <= 100; i++) {
+  const z = -6 + (i / 100) * 12;
+  points.push({ x: xToPx(z), y: yToPx(sigmoid(z)) });
+}
+const pathD = points.map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `L${p.x},${p.y}`)).join(' ');
+
+const xTicks = [-6, -4, -2, 0, 2, 4, 6];
+const yTicks = [0, 0.25, 0.5, 0.75, 1.0];
+---
+<svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sigmoid 函数曲线图：从 0 到 1 的 S 形单调递增曲线，x=0 处值为 0.5" class="w-full max-w-lg mx-auto">
+  <title>Sigmoid 函数曲线图</title>
+  <defs>
+    <linearGradient id="sg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="currentColor" stop-opacity="0.1" />
+      <stop offset="0.5" stop-color="#00ff88" stop-opacity="0.3" />
+      <stop offset="1" stop-color="currentColor" stop-opacity="0.1" />
+    </linearGradient>
+    <clipPath id="plotClip">
+      <rect x={pad.left} y={pad.top} width={pw} height={ph} />
+    </clipPath>
+  </defs>
+
+  {yTicks.map((y) => (
+    <line x1={pad.left} y1={yToPx(y)} x2={pad.left + pw} y2={yToPx(y)} stroke="currentColor" stroke-opacity="0.08" />
+  ))}
+
+  <line x1={pad.left} y1={yToPx(0)} x2={pad.left + pw} y2={yToPx(0)} stroke="currentColor" stroke-opacity="0.3" />
+  <line x1={xToPx(0)} y1={pad.top} x2={xToPx(0)} y2={pad.top + ph} stroke="currentColor" stroke-opacity="0.3" />
+
+  <path d={pathD} fill="none" stroke="#00ff88" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+  <line x1={pad.left} y1={yToPx(0.5)} x2={pad.left + pw} y2={yToPx(0.5)} stroke="currentColor" stroke-opacity="0.12" stroke-dasharray="4,4" />
+
+  {xTicks.map((x) => (
+    <text x={xToPx(x)} y={yToPx(0) + 20} text-anchor="middle" fill="currentColor" opacity="0.5" font-size="12">
+      {x}
+    </text>
+  ))}
+
+  {yTicks.map((y) => (
+    <text x={pad.left - 10} y={yToPx(y) + 4} text-anchor="end" fill="currentColor" opacity="0.5" font-size="12">
+      {y === 0.5 ? '0.5' : y === 0 ? '0' : y === 1 ? '1' : String(y)}
+    </text>
+  ))}
+
+  <text x={pad.left + pw / 2} y={H - 8} text-anchor="middle" fill="currentColor" opacity="0.7" font-size="13">z</text>
+  <text x={14} y={pad.top + ph / 2} text-anchor="middle" fill="currentColor" opacity="0.7" font-size="13" transform={`rotate(-90, 14, ${pad.top + ph / 2})`}>σ(z)</text>
+
+  <circle cx={xToPx(0)} cy={yToPx(0.5)} r="5" fill="#00ff88" opacity="0.6" />
+</svg>

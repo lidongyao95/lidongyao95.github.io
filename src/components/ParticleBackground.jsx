@@ -34,8 +34,8 @@ export default function ParticleBackground() {
     },
     interactivity: {
       events: {
-        onClick: { enable: true, mode: 'push' },
-        onHover: { enable: true, mode: ['grab', 'bubble', 'repulse'] },
+        onClick: { enable: true, mode: ['push', 'bubble', 'repulse'] },
+        onHover: { enable: true, mode: 'grab' },
       },
       modes: {
         bubble: { distance: 150, duration: 0.5, opacity: 0.65, size: 5 },

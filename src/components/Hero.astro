@@ -3,7 +3,7 @@ import ParticleBackground from './ParticleBackground';
 ---
 
 <section id="home" class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0a1a] via-bg-medium to-[#0a0a1a] overflow-hidden">
-  <ParticleBackground client:load />
+  <ParticleBackground client:visible />
 
   <div class="relative z-10 text-center px-6 max-w-3xl">
     <p class="text-accent text-xs tracking-[0.3em] mb-8 uppercase animate-[fadeIn_1s_ease-out]">
@@ -56,6 +56,10 @@ import ParticleBackground from './ParticleBackground';
       self.cursor.style.animation = 'blink 1s step-end infinite';
     },
   });
+
+  // Cleanup on page unload or Astro View Transitions
+  window.addEventListener('beforeunload', () => typed.destroy());
+  document.addEventListener('astro:before-swap', () => typed.destroy());
 </script>
 
 <style is:global>

@@ -8,7 +8,7 @@ const posts = await getCollection('blog');
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf() || a.id.localeCompare(b.id));
 ---
 
-<BaseLayout>
+<BaseLayout title="博客 — Douglas Li" description="关于软件工程和技术的思考。">
   <Nav />
   <main class="pt-28 pb-20 px-6">
     <div class="max-w-3xl mx-auto">

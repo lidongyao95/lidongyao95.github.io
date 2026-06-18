@@ -1,0 +1,47 @@
+---
+const W = 400;
+const H = 200;
+
+const x1 = 50, x2 = 50, xz = 240, xy = 350;
+const y1 = 55, y2 = 145, yMid = 100;
+
+const strokeColor = '#00ff88';
+const dimColor = 'rgba(255,255,255,0.3)';
+---
+<svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" role="img" aria-label="单神经元示意图：两个输入 x1、x2 经加权求和后通过 Sigmoid 函数输出" class="w-full max-w-sm mx-auto">
+  <title>单神经元示意图</title>
+  <defs>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" marker-width="6" marker-height="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill={strokeColor} />
+    </marker>
+  </defs>
+
+  <circle cx={x1} cy={y1} r="18" fill="none" stroke={dimColor} stroke-width="1.5" />
+  <text x={x1} y={y1 + 5} text-anchor="middle" fill="white" font-size="14" font-family="monospace">x₁</text>
+
+  <circle cx={x2} cy={y2} r="18" fill="none" stroke={dimColor} stroke-width="1.5" />
+  <text x={x2} y={y2 + 5} text-anchor="middle" fill="white" font-size="14" font-family="monospace">x₂</text>
+
+  <text x={x1 + 26} y={y1 + 4} fill="currentColor" opacity="0.5" font-size="11">重量</text>
+  <text x={x2 + 26} y={y2 + 4} fill="currentColor" opacity="0.5" font-size="11">硬度</text>
+
+  <line x1={x1 + 18} y1={y1} x2={xz - 14} y2={yMid - 8} stroke={strokeColor} stroke-width="1.5" marker-end="url(#arrowGreen)" />
+  <text x={(x1 + xz) / 2 - 10} y={yMid - 28} fill={strokeColor} opacity="0.8" font-size="11" font-family="monospace">w₁</text>
+
+  <line x1={x2 + 18} y1={y2} x2={xz - 14} y2={yMid + 8} stroke={strokeColor} stroke-width="1.5" marker-end="url(#arrowGreen)" />
+  <text x={(x2 + xz) / 2 - 10} y={yMid + 28} fill={strokeColor} opacity="0.8" font-size="11" font-family="monospace">w₂</text>
+
+  <circle cx={xz} cy={yMid} r="22" fill="none" stroke={strokeColor} stroke-width="2" />
+  <text x={xz} y={yMid - 4} text-anchor="middle" fill="white" font-size="10" font-family="monospace">z = Σwᵢxᵢ</text>
+  <text x={xz} y={yMid + 12} text-anchor="middle" fill="white" opacity="0.5" font-size="9">+ b</text>
+
+  <text x={xz} y={yMid - 36} text-anchor="middle" fill="currentColor" opacity="0.4" font-size="11" font-family="monospace">b</text>
+
+  <line x1={xz + 22} y1={yMid} x2={xy - 18} y2={yMid} stroke={strokeColor} stroke-width="1.5" marker-end="url(#arrowGreen)" />
+
+  <rect x={xy - 18} y={yMid - 22} width={36} height={44} rx="8" fill="none" stroke={strokeColor} stroke-width="2" />
+  <text x={xy} y={yMid - 4} text-anchor="middle" fill="white" font-size="9" font-family="monospace">σ(z)</text>
+  <text x={xy} y={yMid + 13} text-anchor="middle" fill="white" opacity="0.6" font-size="9">ŷ</text>
+
+  <text x={xy} y={yMid + 52} text-anchor="middle" fill="currentColor" opacity="0.35" font-size="11">输出概率 (0 ~ 1)</text>
+</svg>

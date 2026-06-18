@@ -1,0 +1,94 @@
+---
+const W = 600;
+const H = 480;
+
+const accent = '#00ff88';
+const dim = 'rgba(255,255,255,0.15)';
+const dimText = 'rgba(255,255,255,0.5)';
+
+const bw = 140;
+const bh = 36;
+const rx = 6;
+
+// Training side (left)
+const tLeft = 30;
+const tCenter = tLeft + bw / 2;
+
+const trainingSteps = [
+  { y: 40, text: '输入 x', color: dim },
+  { y: 90, text: '前向传播', color: accent, opacity: 0.3 },
+  { y: 140, text: '预测 ŷ', color: dim },
+  { y: 190, text: '计算损失 L(ŷ, y)', color: accent, opacity: 0.5 },
+  { y: 240, text: '反向传播 ∂L/∂w', color: accent, opacity: 0.7 },
+  { y: 290, text: '更新权重 w -= α·∇L', color: accent, opacity: 0.9 },
+];
+
+// Inference side (right)
+const iLeft = 370;
+const iCenter = iLeft + bw / 2;
+
+const inferenceSteps = [
+  { y: 130, text: '新输入 x', color: dim },
+  { y: 180, text: '前向传播', color: accent, opacity: 0.3 },
+  { y: 230, text: '输出 ŷ', color: dim },
+  { y: 280, text: 'ŷ > 0.5 ?  → 分类结果', color: accent, opacity: 0.5 },
+];
+
+const lastY = trainingSteps[trainingSteps.length - 1].y;
+const firstY = trainingSteps[0].y;
+const loopPath = `M${tCenter},${lastY + bh} L${tCenter},${lastY + bh + 20} L${tLeft - 20},${lastY + bh + 20} L${tLeft - 20},${firstY + bh / 2} L${tLeft},${firstY + bh / 2}`;
+---
+<svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" role="img" aria-label="训练与推理流程对比图：左侧训练循环含 6 步并带回传，右侧推理含 4 步无回传" class="w-full max-w-xl mx-auto">
+  <title>训练与推理流程对比图</title>
+  <defs>
+    <marker id="arrAccent" viewBox="0 0 8 8" refX="4" refY="7" marker-width="5" marker-height="5" orient="auto">
+      <path d="M 0 0 L 4 8 L 8 0 z" fill={accent} opacity="0.5" />
+    </marker>
+    <marker id="arrAccent2" viewBox="0 0 8 8" refX="4" refY="7" marker-width="5" marker-height="5" orient="auto">
+      <path d="M 0 0 L 4 8 L 8 0 z" fill={accent} opacity="0.35" />
+    </marker>
+  </defs>
+
+  <text x={tCenter} y={18} text-anchor="middle" fill="white" font-size="15" font-weight="bold">🔄 训练</text>
+  <text x={iCenter} y={18} text-anchor="middle" fill="white" font-size="15" font-weight="bold">⚡ 推理</text>
+
+  <line x1={W / 2} y1={28} x2={W / 2} y2={H - 20} stroke={dim} stroke-width="1" stroke-dasharray="6,4" />
+
+  {trainingSteps.map((s, i) => {
+    const fill = s.color === accent ? accent : 'none';
+    const opacity = s.opacity ?? (s.color === accent ? 0.15 : 0);
+    return (
+      <g>
+        <rect x={tLeft} y={s.y} width={bw} height={bh} rx={rx} fill={fill} fill-opacity={opacity} stroke={s.color} stroke-width="1.2" />
+        <text x={tCenter} y={s.y + bh / 2 + 5} text-anchor="middle" fill="white" font-size="13">{s.text}</text>
+      </g>
+    );
+  })}
+
+  {trainingSteps.slice(0, -1).map((s, i) => (
+    <line x1={tCenter} y1={s.y + bh} x2={tCenter} y2={trainingSteps[i + 1].y} stroke={accent} stroke-opacity="0.5" stroke-width="1.2" marker-end="url(#arrAccent)" />
+  ))}
+
+  <path d={loopPath} fill="none" stroke={accent} stroke-opacity="0.35" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrAccent)" />
+  <text x={tLeft - 26} y={lastY + bh + 14} text-anchor="end" fill={accent} opacity="0.6" font-size="11">↻ 重复直到收敛</text>
+
+  {inferenceSteps.map((s, i) => {
+    const fill = s.color === accent ? accent : 'none';
+    const opacity = s.opacity ?? (s.color === accent ? 0.12 : 0);
+    return (
+      <g>
+        <rect x={iLeft} y={s.y} width={bw} height={bh} rx={rx} fill={fill} fill-opacity={opacity} stroke={s.color} stroke-width="1.2" />
+        <text x={iCenter} y={s.y + bh / 2 + 5} text-anchor="middle" fill="white" font-size="13">{s.text}</text>
+      </g>
+    );
+  })}
+
+  {inferenceSteps.slice(0, -1).map((s, i) => (
+    <line x1={iCenter} y1={s.y + bh} x2={iCenter} y2={inferenceSteps[i + 1].y} stroke={accent} stroke-opacity="0.35" stroke-width="1.2" marker-end="url(#arrAccent2)" />
+  ))}
+
+  <text x={iCenter} y={inferenceSteps[inferenceSteps.length - 1].y + bh + 22} text-anchor="middle" fill={dimText} font-size="11">一次正向计算，没有反向</text>
+
+  <text x={tCenter} y={H - 14} text-anchor="middle" fill="white" opacity="0.6" font-size="12">训练阶段（循环执行）</text>
+  <text x={iCenter} y={H - 14} text-anchor="middle" fill="white" opacity="0.6" font-size="12">推理阶段（单次执行）</text>
+</svg>

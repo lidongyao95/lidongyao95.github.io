@@ -4,18 +4,43 @@ import 'katex/dist/katex.min.css';
 
 interface Props {
   enablePointerEffects?: boolean;
+  title?: string;
+  description?: string;
+  image?: string;
 }
 
-const { enablePointerEffects = false } = Astro.props;
+const {
+  enablePointerEffects = false,
+  title = 'Douglas Li — 软件工程师',
+  description = '一名软件工程师 & 终身学习者。',
+  image = '/favicon.svg',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Douglas Li — 软件工程师</title>
-    <meta name="description" content="一名软件工程师 & 终身学习者。" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL.href} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL.href} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(image, Astro.site).href} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalURL.href} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(image, Astro.site).href} />
   </head>
   <body
     class="min-h-screen bg-bg-darkest text-white antialiased"
@@ -52,6 +77,14 @@ const { enablePointerEffects = false } = Astro.props;
         let lastTrailAt = 0;
         let lastTrailPoint = null;
 
+        // Performance: cap concurrent live trail nodes
+        const MAX_LIVE_NODES = 30;
+        let liveNodes = 0;
+
+        // Performance: rAF loop termination on convergence
+        let rAFId = 0;
+        let isAnimating = true;
+
         const setPointerVars = (x, y) => {
           document.documentElement.style.setProperty('--pointer-x', `${x}px`);
           document.documentElement.style.setProperty('--pointer-y', `${y}px`);
@@ -71,7 +104,8 @@ const { enablePointerEffects = false } = Astro.props;
           link.style.width = `${distance}px`;
           link.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
           trailLayer.append(link);
-          window.setTimeout(() => link.remove(), 720);
+          liveNodes++;
+          window.setTimeout(() => { link.remove(); liveNodes--; }, 720);
         };
 
         const drawTrailNode = (x, y) => {
@@ -80,10 +114,12 @@ const { enablePointerEffects = false } = Astro.props;
           node.style.left = `${x}px`;
           node.style.top = `${y}px`;
           trailLayer.append(node);
-          window.setTimeout(() => node.remove(), 720);
+          liveNodes++;
+          window.setTimeout(() => { node.remove(); liveNodes--; }, 720);
         };
 
         const spawnTrail = (x, y) => {
+          if (liveNodes >= MAX_LIVE_NODES) return;
           const nextPoint = { x, y };
           drawTrailNode(x, y);
           if (lastTrailPoint) drawTrailLink(lastTrailPoint, nextPoint);
@@ -94,11 +130,26 @@ const { enablePointerEffects = false } = Astro.props;
           ringX += (pointerX - ringX) * 0.18;
           ringY += (pointerY - ringY) * 0.18;
           cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
-          requestAnimationFrame(animateCursor);
+
+          // Terminate loop when ring converges to pointer position
+          const deltaX = Math.abs(ringX - pointerX);
+          const deltaY = Math.abs(ringY - pointerY);
+          if (deltaX < 0.5 && deltaY < 0.5) {
+            isAnimating = false;
+            return;
+          }
+          rAFId = requestAnimationFrame(animateCursor);
+        };
+
+        const startAnimation = () => {
+          if (!isAnimating) {
+            isAnimating = true;
+            rAFId = requestAnimationFrame(animateCursor);
+          }
         };
 
         setPointerVars(pointerX, pointerY);
-        animateCursor();
+        rAFId = requestAnimationFrame(animateCursor);
 
         window.addEventListener('pointermove', (event) => {
           pointerX = event.clientX;
@@ -106,11 +157,19 @@ const { enablePointerEffects = false } = Astro.props;
           cursorOrb.style.transform = `translate3d(${pointerX}px, ${pointerY}px, 0) translate(-50%, -50%)`;
           setPointerVars(pointerX, pointerY);
 
+          startAnimation();
+
           const now = performance.now();
           if (now - lastTrailAt > 42) {
             spawnTrail(pointerX, pointerY);
             lastTrailAt = now;
           }
+        });
+
+        // Stop animation when pointer leaves the window
+        document.addEventListener('mouseleave', () => {
+          cancelAnimationFrame(rAFId);
+          isAnimating = false;
         });
 
         window.addEventListener('pointerdown', () => {

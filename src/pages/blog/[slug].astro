@@ -17,7 +17,7 @@ const { Content, headings } = await render(post);
 const tocHeadings = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
 ---
 
-<BaseLayout>
+<BaseLayout title={post.data.title} description={post.data.excerpt ?? '技术博客文章'}>
   <Nav />
   <main class="pt-28 pb-20 px-6">
     <div class="max-w-6xl mx-auto lg:grid lg:grid-cols-[13rem_minmax(0,48rem)] lg:gap-12 lg:items-start">
