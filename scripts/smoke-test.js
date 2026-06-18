@@ -5,8 +5,11 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as cheerio from 'cheerio';
+import { getBlogPosts, getLatestBlogPosts } from './blog-posts.js';
 
 const DOCS_DIR = path.resolve('docs');
+const blogPosts = getBlogPosts();
+const blogPostHrefs = new Set(blogPosts.map((post) => post.href));
 let errors = 0;
 let passed = 0;
 
@@ -82,11 +85,15 @@ console.log('\n🏠 Home page');
   assert($('#blog h2').text().includes('最新文章'), '最新文章 heading');
   assert($('#contact h2').text().includes('联系我'), '联系我 heading');
 
-  // Blog preview shows latest post
-  const blogLinks = $('#blog a[href^="/blog"]');
-  assert(blogLinks.length >= 3, 'blog preview has latest post links');
-  assert($('#blog').text().includes('模型的泛化能力'), 'blog preview shows generalization post');
-  assert($('#blog').text().includes('模型训练范式'), 'blog preview shows pretraining post');
+  // Blog preview shows the latest posts from content.
+  const expectedPreviewPosts = getLatestBlogPosts(Math.min(3, blogPosts.length));
+  const blogLinks = $('#blog a[href^="/blog/"]');
+  const blogHrefs = blogLinks.map((_, el) => $(el).attr('href')).get();
+  assert(blogLinks.length === expectedPreviewPosts.length, `blog preview has ${expectedPreviewPosts.length} latest post links`);
+  expectedPreviewPosts.forEach((post, index) => {
+    assert(blogHrefs[index] === post.href, `blog preview item ${index + 1} links to ${post.slug}`);
+    assert($('#blog').text().includes(post.title), `blog preview shows ${post.slug}`);
+  });
 
   // Project cards link to GitHub
   const projectLinks = $('#projects a[href*="github.com"]');
@@ -133,12 +140,24 @@ console.log('\n📋 Blog listing');
 
   assert($('h1').text().includes('博客'), 'blog listing title = 博客');
   const postLinks = $('a[href^="/blog/"]');
-  assert(postLinks.length >= 5, `blog listing has >= 5 posts (found ${postLinks.length})`);
-  assert($('body').text().includes('模型的泛化能力'), 'blog listing shows generalization post');
-  assert($('body').text().includes('模型训练范式'), 'blog listing shows pretraining post');
-  assert($('body').text().includes('Transformer 架构详解'), 'blog listing shows transformer post');
-  assert($('body').text().includes('神经网络分类'), 'blog listing shows nn-classification');
-  assert($('body').text().includes('你好，世界'), 'blog listing shows hello-world');
+  assert(postLinks.length === blogPosts.length, `blog listing has every post (found ${postLinks.length}, expected ${blogPosts.length})`);
+  blogPosts.forEach((post) => {
+    const link = $(`a[href="${post.href}"]`);
+    assert(link.length === 1, `blog listing links to ${post.slug}`);
+    assert(link.text().includes(post.title), `blog listing shows ${post.slug} title`);
+  });
+}
+
+// ── Blog post table of contents ──
+console.log('\n📚 Blog post table of contents');
+for (const post of blogPosts.filter((item) => item.headings.length > 0)) {
+  const htmlPath = path.join(DOCS_DIR, 'blog', post.slug, 'index.html');
+  const $ = cheerio.load(fs.readFileSync(htmlPath, 'utf-8'));
+  const toc = $('[data-testid="post-toc"]');
+  assert(toc.length === 1, `${post.slug}: has table of contents`);
+  post.headings.slice(0, 3).forEach((heading) => {
+    assert(toc.text().includes(heading.text), `${post.slug}: toc includes "${heading.text}"`);
+  });
 }
 
 // ── Blog post: nn-classification ──
@@ -174,6 +193,14 @@ console.log('\n📝 Blog post: nn-classification');
   // Prose class for typography
   assert($('.prose').length >= 1, 'prose class applied');
 }
+
+// ── Blog routes generated for every content file ──
+console.log('\n🧾 Blog route coverage');
+blogPosts.forEach((post) => {
+  const htmlPath = path.join(DOCS_DIR, 'blog', post.slug, 'index.html');
+  assert(fs.existsSync(htmlPath), `${post.slug}: generated HTML exists`);
+  assert(blogPostHrefs.has(post.href), `${post.slug}: registered expected href`);
+});
 
 // ── External link audit ──
 console.log('\n🔗 External links');

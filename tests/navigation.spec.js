@@ -1,4 +1,8 @@
 import { test, expect } from '@playwright/test';
+import { getBlogPosts } from '../scripts/blog-posts.js';
+
+const blogPosts = getBlogPosts();
+const samplePost = blogPosts.find((post) => post.slug === 'nn-classification') ?? blogPosts[0];
 
 test.describe('Home page', () => {
   test.beforeEach(async ({ page }) => {
@@ -28,8 +32,11 @@ test.describe('Home page', () => {
   test('click 阅读博客 goes to /blog', async ({ page }) => {
     const blogBtn = page.locator('#home a[href="/blog"]');
     await blogBtn.click();
-    await expect(page).toHaveURL('/blog');
+    await expect(page).toHaveURL(/\/blog\/?$/);
     await expect(page.locator('h1')).toContainText('博客');
+    for (const post of blogPosts) {
+      await expect(page.locator(`a[href="${post.href}"]`)).toContainText(post.title);
+    }
   });
 
   test('project cards open GitHub in new tab', async ({ page }) => {
@@ -54,12 +61,12 @@ test.describe('Navigation', () => {
 
     // Click 博客 → goes to /blog
     await nav.locator('a[href="/blog"]').click();
-    await expect(page).toHaveURL('/blog');
+    await expect(page).toHaveURL(/\/blog\/?$/);
     await expect(page.locator('h1')).toContainText('博客');
   });
 
   test('nav links work from blog post page', async ({ page }) => {
-    await page.goto('/blog/nn-classification');
+    await page.goto(samplePost.href);
 
     // 首页 → goes to /
     await page.locator('nav a[href="/"]').first().click();
@@ -68,7 +75,7 @@ test.describe('Navigation', () => {
   });
 
   test('nav 关于 link scrolls to about section', async ({ page }) => {
-    await page.goto('/blog/nn-classification');
+    await page.goto(samplePost.href);
 
     // Click 关于 from blog post → goes to /#about
     await page.locator('nav a[href="/#about"]').click();
@@ -85,34 +92,32 @@ test.describe('Navigation', () => {
   });
 
   test('logo goes to home', async ({ page }) => {
-    await page.goto('/blog/nn-classification');
+    await page.goto(samplePost.href);
     await page.locator('nav a[href="/"]').first().click();
     await expect(page).toHaveURL('/');
   });
 });
 
 test.describe('Blog pages', () => {
-  test('blog listing shows all posts', async ({ page }) => {
+  test('blog listing shows every content post', async ({ page }) => {
     await page.goto('/blog');
-    await expect(page.locator('a[href="/blog/generalization-and-interpretability"]')).toBeVisible();
-    await expect(page.locator('a[href="/blog/pretraining-and-finetuning"]')).toBeVisible();
-    await expect(page.locator('a[href="/blog/transformer-architecture"]')).toBeVisible();
-    await expect(page.locator('a[href="/blog/hello-world"]')).toBeVisible();
-    await expect(page.locator('a[href="/blog/nn-classification"]')).toBeVisible();
+    const postLinks = page.locator('main a[href^="/blog/"]');
+    await expect(postLinks).toHaveCount(blogPosts.length);
+    for (const post of blogPosts) {
+      await expect(page.locator(`a[href="${post.href}"]`)).toContainText(post.title);
+    }
   });
 
-  test('nn-classification has back link', async ({ page }) => {
-    await page.goto('/blog/nn-classification');
-    const backLink = page.locator('a[href="/blog"]').first();
-    await expect(backLink).toBeVisible();
-    await backLink.click();
-    await expect(page).toHaveURL('/blog');
-  });
-
-  test('hello-world post renders', async ({ page }) => {
-    await page.goto('/blog/hello-world');
-    await expect(page.locator('h1')).toContainText('你好，世界');
-  });
+  for (const post of blogPosts) {
+    test(`${post.slug} renders title and back link`, async ({ page }) => {
+      await page.goto(post.href);
+      await expect(page.locator('h1')).toContainText(post.title);
+      const backLink = page.locator('a[href="/blog"]').first();
+      await expect(backLink).toBeVisible();
+      await backLink.click();
+      await expect(page).toHaveURL(/\/blog\/?$/);
+    });
+  }
 });
 
 test.describe('External links', () => {

@@ -1,4 +1,8 @@
 import { test, expect } from '@playwright/test';
+import { getBlogPosts, getLatestBlogPosts } from '../scripts/blog-posts.js';
+
+const blogPosts = getBlogPosts();
+const latestPreviewPosts = getLatestBlogPosts(Math.min(3, blogPosts.length));
 
 test.describe('Blog post content — nn-classification', () => {
   test.beforeEach(async ({ page }) => {
@@ -74,10 +78,11 @@ test.describe('Home page content', () => {
 
   test('blog preview has posts', async ({ page }) => {
     const postLinks = page.locator('#blog a[href^="/blog/"]');
-    const count = await postLinks.count();
-    expect(count).toBeGreaterThanOrEqual(3);
-    await expect(page.locator('#blog')).toContainText('模型的泛化能力');
-    await expect(page.locator('#blog')).toContainText('模型训练范式');
+    await expect(postLinks).toHaveCount(latestPreviewPosts.length);
+    for (let index = 0; index < latestPreviewPosts.length; index++) {
+      await expect(postLinks.nth(index)).toHaveAttribute('href', latestPreviewPosts[index].href);
+      await expect(postLinks.nth(index)).toContainText(latestPreviewPosts[index].title);
+    }
   });
 
   test('footer has copyright and year', async ({ page }) => {
@@ -87,12 +92,12 @@ test.describe('Home page content', () => {
 });
 
 test.describe('Cross-page consistency', () => {
-  const pages = ['/', '/blog', '/blog/nn-classification', '/blog/hello-world'];
+  const pages = ['/', '/blog', ...blogPosts.map((post) => post.href)];
 
   for (const route of pages) {
     test(`${route} has nav bar`, async ({ page }) => {
       await page.goto(route);
-      await expect(page.locator('nav')).toBeVisible();
+      await expect(page.locator('body > nav').first()).toBeVisible();
     });
 
     test(`${route} has correct lang attribute`, async ({ page }) => {
@@ -127,18 +132,37 @@ test.describe('Cross-page consistency', () => {
       }
 
       // Verify a sample of critical links by actually navigating
+      const postHrefs = new Set(blogPosts.map((post) => post.href));
       const criticalLinks = hrefs.filter(
-        (h) =>
-          h === '/blog' ||
-          h === '/blog/generalization-and-interpretability' ||
-          h === '/blog/pretraining-and-finetuning' ||
-          h === '/blog/hello-world' ||
-          h === '/blog/nn-classification'
+        (h) => h === '/blog' || postHrefs.has(h)
       );
       for (const href of [...new Set(criticalLinks)]) {
         const resp = await page.goto(href);
         expect(resp?.status()).toBe(200);
       }
+    });
+  }
+});
+
+test.describe('Blog post table of contents', () => {
+  for (const post of blogPosts.filter((item) => item.headings.length > 0)) {
+    test(`${post.slug} shows heading navigation`, async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.goto(post.href);
+      const toc = page.locator('[data-testid="post-toc"]');
+      await expect(toc).toBeVisible();
+
+      for (const heading of post.headings.slice(0, 3)) {
+        await expect(toc).toContainText(heading.text);
+      }
+
+      const firstTocLink = toc.locator('a').first();
+      const href = await firstTocLink.getAttribute('href');
+      expect(href).toMatch(/^#/);
+      await firstTocLink.click();
+      await expect
+        .poll(() => decodeURIComponent(new URL(page.url()).hash))
+        .toBe(href);
     });
   }
 });
