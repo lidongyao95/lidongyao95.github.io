@@ -34,9 +34,13 @@ export default function ParticleBackground() {
     },
     interactivity: {
       events: {
-        onHover: { enable: true, mode: 'repulse' },
+        onClick: { enable: true, mode: 'push' },
+        onHover: { enable: true, mode: ['grab', 'bubble', 'repulse'] },
       },
       modes: {
+        bubble: { distance: 150, duration: 0.5, opacity: 0.65, size: 5 },
+        grab: { distance: 180, links: { opacity: 0.28 } },
+        push: { quantity: 3 },
         repulse: { distance: 100, duration: 0.4 },
       },
     },
@@ -44,11 +48,18 @@ export default function ParticleBackground() {
   };
 
   return (
-    <Particles
-      id="tsparticles"
-      init={particlesInit}
-      options={options}
-      className="!absolute inset-0"
-    />
+    <>
+      <Particles
+        id="tsparticles"
+        init={particlesInit}
+        options={options}
+        className="!absolute inset-0"
+      />
+      <div className="particle-signal-field" data-particle-signal aria-hidden="true">
+        <span className="particle-signal particle-signal-a" />
+        <span className="particle-signal particle-signal-b" />
+        <span className="particle-signal particle-signal-c" />
+      </div>
+    </>
   );
 }

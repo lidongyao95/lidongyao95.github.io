@@ -1,4 +1,5 @@
 ---
+import '../styles/global.css';
 import 'katex/dist/katex.min.css';
 ---
 <!DOCTYPE html>
@@ -11,15 +12,134 @@ import 'katex/dist/katex.min.css';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="min-h-screen bg-bg-darkest text-white antialiased">
+    <div class="cursor-orb" data-cursor-orb aria-hidden="true"></div>
+    <div class="cursor-ring" data-cursor-ring aria-hidden="true"></div>
+    <div class="neural-trail-layer" data-neural-trail-layer aria-hidden="true"></div>
+
     <slot />
 
     <script>
+      const canUseInteractivePointer =
+        window.matchMedia('(pointer: fine)').matches &&
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const cursorOrb = document.querySelector('[data-cursor-orb]');
+      const cursorRing = document.querySelector('[data-cursor-ring]');
+      const trailLayer = document.querySelector('[data-neural-trail-layer]');
+
+      if (canUseInteractivePointer && cursorOrb && cursorRing && trailLayer) {
+        document.documentElement.classList.add('has-interactive-cursor');
+
+        let pointerX = window.innerWidth / 2;
+        let pointerY = window.innerHeight / 2;
+        let ringX = pointerX;
+        let ringY = pointerY;
+        let lastTrailAt = 0;
+        let lastTrailPoint = null;
+
+        const setPointerVars = (x, y) => {
+          document.documentElement.style.setProperty('--pointer-x', `${x}px`);
+          document.documentElement.style.setProperty('--pointer-y', `${y}px`);
+        };
+
+        const drawTrailLink = (from, to) => {
+          const dx = to.x - from.x;
+          const dy = to.y - from.y;
+          const distance = Math.hypot(dx, dy);
+
+          if (distance < 8 || distance > 180) return;
+
+          const link = document.createElement('span');
+          link.className = 'neural-trail-link';
+          link.style.left = `${from.x}px`;
+          link.style.top = `${from.y}px`;
+          link.style.width = `${distance}px`;
+          link.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+          trailLayer.append(link);
+          window.setTimeout(() => link.remove(), 720);
+        };
+
+        const drawTrailNode = (x, y) => {
+          const node = document.createElement('span');
+          node.className = 'neural-trail-node';
+          node.style.left = `${x}px`;
+          node.style.top = `${y}px`;
+          trailLayer.append(node);
+          window.setTimeout(() => node.remove(), 720);
+        };
+
+        const spawnTrail = (x, y) => {
+          const nextPoint = { x, y };
+          drawTrailNode(x, y);
+          if (lastTrailPoint) drawTrailLink(lastTrailPoint, nextPoint);
+          lastTrailPoint = nextPoint;
+        };
+
+        const animateCursor = () => {
+          ringX += (pointerX - ringX) * 0.18;
+          ringY += (pointerY - ringY) * 0.18;
+          cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+          requestAnimationFrame(animateCursor);
+        };
+
+        setPointerVars(pointerX, pointerY);
+        animateCursor();
+
+        window.addEventListener('pointermove', (event) => {
+          pointerX = event.clientX;
+          pointerY = event.clientY;
+          cursorOrb.style.transform = `translate3d(${pointerX}px, ${pointerY}px, 0) translate(-50%, -50%)`;
+          setPointerVars(pointerX, pointerY);
+
+          const now = performance.now();
+          if (now - lastTrailAt > 42) {
+            spawnTrail(pointerX, pointerY);
+            lastTrailAt = now;
+          }
+        });
+
+        window.addEventListener('pointerdown', () => {
+          document.documentElement.classList.add('is-pointer-pressing');
+        });
+
+        window.addEventListener('pointerup', () => {
+          document.documentElement.classList.remove('is-pointer-pressing');
+        });
+      }
+
       // Button & card glow effect — tracks mouse position
       document.querySelectorAll('.btn-glow, .card-glow').forEach((el) => {
         el.addEventListener('mousemove', (e) => {
           const rect = el.getBoundingClientRect();
           el.style.setProperty('--mx', `${e.clientX - rect.left}px`);
           el.style.setProperty('--my', `${e.clientY - rect.top}px`);
+
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const offsetX = e.clientX - rect.left - centerX;
+          const offsetY = e.clientY - rect.top - centerY;
+
+          if (el.classList.contains('card-glow')) {
+            el.style.setProperty('--tilt-x', `${(-offsetY / centerY) * 7}deg`);
+            el.style.setProperty('--tilt-y', `${(offsetX / centerX) * 9}deg`);
+          }
+
+          if (el.classList.contains('btn-glow')) {
+            el.style.setProperty('--magnet-x', `${offsetX * 0.08}px`);
+            el.style.setProperty('--magnet-y', `${offsetY * 0.08}px`);
+          }
+        });
+
+        el.addEventListener('mouseleave', () => {
+          if (el.classList.contains('card-glow')) {
+            el.style.setProperty('--tilt-x', '0deg');
+            el.style.setProperty('--tilt-y', '0deg');
+          }
+
+          if (el.classList.contains('btn-glow')) {
+            el.style.setProperty('--magnet-x', '0px');
+            el.style.setProperty('--magnet-y', '0px');
+          }
         });
       });
 
