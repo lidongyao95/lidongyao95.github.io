@@ -27,6 +27,18 @@ test.describe('Interactive visual effects', () => {
     expect(trailNodes).toBeGreaterThan(0);
   });
 
+  test('custom cursor is not enabled on blog posts', async ({ page }) => {
+    await page.goto('/blog/pretraining-and-finetuning');
+    await page.mouse.move(120, 160);
+    await page.mouse.move(360, 240, { steps: 10 });
+
+    await expect(page.locator('html')).not.toHaveClass(/has-interactive-cursor/);
+    await expect(page.locator('[data-cursor-orb]')).toHaveCount(0);
+    await expect(page.locator('[data-cursor-ring]')).toHaveCount(0);
+    await expect(page.locator('[data-neural-trail-layer]')).toHaveCount(0);
+    await expect(page.locator('.neural-trail-node')).toHaveCount(0);
+  });
+
   test('hero particle signal layer renders with three sweep lines', async ({ page }) => {
     const signalField = page.locator('[data-particle-signal]');
 

@@ -60,6 +60,8 @@ console.log('\n🏠 Home page');
 
   // Hero section
   assert($('#home').length === 1, 'section #home exists');
+  assert($('[data-cursor-orb]').length === 1, 'home has custom cursor orb');
+  assert($('[data-neural-trail-layer]').length === 1, 'home has neural trail layer');
   assert($('h1').text().includes('你好'), 'hero heading has Chinese greeting');
   assert($('#typed-target').length === 1, 'typed.js target element exists');
 
@@ -139,6 +141,8 @@ console.log('\n📋 Blog listing');
   const $ = cheerio.load(fs.readFileSync(path.join(DOCS_DIR, 'blog/index.html'), 'utf-8'));
 
   assert($('h1').text().includes('博客'), 'blog listing title = 博客');
+  assert($('[data-cursor-orb]').length === 0, 'blog listing does not render custom cursor');
+  assert($('[data-neural-trail-layer]').length === 0, 'blog listing does not render neural trail layer');
   const postLinks = $('a[href^="/blog/"]');
   assert(postLinks.length === blogPosts.length, `blog listing has every post (found ${postLinks.length}, expected ${blogPosts.length})`);
   blogPosts.forEach((post) => {
@@ -154,6 +158,8 @@ for (const post of blogPosts.filter((item) => item.headings.length > 0)) {
   const htmlPath = path.join(DOCS_DIR, 'blog', post.slug, 'index.html');
   const $ = cheerio.load(fs.readFileSync(htmlPath, 'utf-8'));
   const toc = $('[data-testid="post-toc"]');
+  assert($('[data-cursor-orb]').length === 0, `${post.slug}: does not render custom cursor`);
+  assert($('[data-neural-trail-layer]').length === 0, `${post.slug}: does not render neural trail layer`);
   assert(toc.length === 1, `${post.slug}: has table of contents`);
   post.headings.slice(0, 3).forEach((heading) => {
     assert(toc.text().includes(heading.text), `${post.slug}: toc includes "${heading.text}"`);

@@ -1,6 +1,12 @@
 ---
 import '../styles/global.css';
 import 'katex/dist/katex.min.css';
+
+interface Props {
+  enablePointerEffects?: boolean;
+}
+
+const { enablePointerEffects = false } = Astro.props;
 ---
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -11,15 +17,24 @@ import 'katex/dist/katex.min.css';
     <meta name="description" content="一名软件工程师 & 终身学习者。" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
-  <body class="min-h-screen bg-bg-darkest text-white antialiased">
-    <div class="cursor-orb" data-cursor-orb aria-hidden="true"></div>
-    <div class="cursor-ring" data-cursor-ring aria-hidden="true"></div>
-    <div class="neural-trail-layer" data-neural-trail-layer aria-hidden="true"></div>
+  <body
+    class="min-h-screen bg-bg-darkest text-white antialiased"
+    data-pointer-effects={enablePointerEffects ? 'true' : 'false'}
+  >
+    {enablePointerEffects && (
+      <>
+        <div class="cursor-orb" data-cursor-orb aria-hidden="true"></div>
+        <div class="cursor-ring" data-cursor-ring aria-hidden="true"></div>
+        <div class="neural-trail-layer" data-neural-trail-layer aria-hidden="true"></div>
+      </>
+    )}
 
     <slot />
 
     <script>
+      const enablePointerEffects = document.body.dataset.pointerEffects === 'true';
       const canUseInteractivePointer =
+        enablePointerEffects &&
         window.matchMedia('(pointer: fine)').matches &&
         !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
