@@ -1,6 +1,6 @@
 ---
 title: 'MCP：给 LLM 装上 USB-C 接口'
-date: 2026-06-23
+date: 2026-06-24
 excerpt: '拆解 Model Context Protocol 的设计理念、通信架构与工程实践，理解 AI 工具集成的下一代标准。'
 ---
 

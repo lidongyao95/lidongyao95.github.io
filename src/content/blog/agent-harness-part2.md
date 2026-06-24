@@ -1,6 +1,6 @@
 ---
 title: 'Agent Harness 工程（下）：评测体系与生产级实践'
-date: 2026-06-23
+date: 2026-06-24
 excerpt: '从 SWE-bench 到 GAIA，拆解 Agent 能力的评测框架；从成本控制到安全护栏，总结让 Agent 可靠运行的工程实践。'
 ---
 

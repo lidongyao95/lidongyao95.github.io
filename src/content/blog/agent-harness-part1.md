@@ -1,6 +1,6 @@
 ---
 title: 'Agent Harness 工程（上）：从 LLM 到可靠 Agent 的编排框架'
-date: 2026-06-23
+date: 2026-06-24
 excerpt: '拆解 Agent 系统的脚手架层——执行循环、工具集成、记忆管理和多 Agent 编排，理解 LLM 之上的工程架构。'
 ---
 
