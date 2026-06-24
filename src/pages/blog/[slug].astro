@@ -26,7 +26,7 @@ const tocHeadings = headings.filter((heading) => heading.depth >= 2 && heading.d
           <nav
             aria-label="文章章节目录"
             data-testid="post-toc"
-            class="border-l border-white/10 pl-4"
+            class="border-l border-white/10 pl-4 max-h-[calc(100vh-8rem)] overflow-y-auto toc-scroll"
           >
             <p class="text-xs font-semibold text-gray-500 mb-4 tracking-[0.2em] uppercase">
               目录
@@ -80,5 +80,19 @@ const tocHeadings = headings.filter((heading) => heading.depth >= 2 && heading.d
   .article-body :global(h3),
   .article-body :global(h4) {
     scroll-margin-top: 7rem;
+  }
+
+  .toc-scroll::-webkit-scrollbar {
+    width: 4px;
+  }
+  .toc-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .toc-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+  }
+  .toc-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
   }
 </style>
