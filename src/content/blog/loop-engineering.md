@@ -564,9 +564,256 @@ Round 5: Thought → Action(test) → Observation ✓
 
 **优雅退化。** 长时循环可能运行数天甚至数周。当记忆库增长到很大时，系统应该能优雅地降级——减少检索范围、降低更新频率、压缩旧记忆——而不是崩溃。
 
-## 10. 循环模式的选择
+## 10. 循环的规范：频率、入口与出口
 
-### 10.1 按任务类型选择
+设计一个循环，不只是决定「怎么循环」，更要决定「什么时候循环」、「什么时候不循环」、「什么时候停止」。没有这些规范的循环，就像一辆没有刹车的车——能跑，但很危险。
+
+### 10.1 频率控制：多久跑一次
+
+循环的频率直接影响系统的响应性、资源消耗和成本。频率太高，浪费资源、触发限流；频率太低，响应迟钝、错过时机。
+
+**任务紧急程度决定频率。** 关键任务（生产环境告警、支付失败）需要秒级甚至毫秒级的循环频率。低优先级任务（日志清理、数据归档）可以小时级甚至天级。
+
+```text
+紧急程度          推荐频率           示例
+─────────────────────────────────────────────
+关键（Critical）   秒级              故障检测、安全告警
+高（High）        分钟级            CI 构建、消息队列处理
+中（Medium）      小时级            数据同步、报告生成
+低（Low）         天级              日志清理、备份验证
+```
+
+**资源约束限制频率。** API 限流（rate limit）、并发上限、成本预算都是硬约束。循环频率不能超过这些约束的上限。
+
+```python
+# 自适应频率控制
+class AdaptiveFrequency:
+    def __init__(self, min_interval=1, max_interval=60):
+        self.min_interval = min_interval
+        self.max_interval = max_interval
+        self.current_interval = min_interval
+        self.success_count = 0
+        self.failure_count = 0
+
+    def get_next_interval(self):
+        # 连续成功：逐步降低间隔（但不低于最小值）
+        if self.success_count >= 5:
+            self.current_interval = max(
+                self.min_interval,
+                self.current_interval * 0.8
+            )
+            self.success_count = 0
+
+        # 连续失败：指数退避（但不超过最大值）
+        if self.failure_count >= 3:
+            self.current_interval = min(
+                self.max_interval,
+                self.current_interval * 2
+            )
+            self.failure_count = 0
+
+        return self.current_interval
+```
+
+**数据新鲜度要求决定频率。** 如果数据变化快（股票行情、社交媒体），循环需要高频以获取最新信息。如果数据变化慢（用户配置、系统参数），低频即可。
+
+**外部依赖影响频率。** 如果循环依赖外部服务（第三方 API、数据库查询），频率受限于这些服务的响应时间和可用性。等待外部响应时，循环应该暂停而不是空转。
+
+### 10.2 入口条件：什么时候启动循环
+
+不是所有情况都适合启动循环。明确的入口条件可以防止不必要的执行和资源浪费。
+
+**触发事件。** 循环通常由特定事件触发：
+
+```text
+事件类型              示例
+──────────────────────────────────────────────
+用户请求             "帮我调试这段代码"
+数据到达             新邮件、新消息、新文件
+定时触发             每天凌晨 2 点、每 15 分钟
+状态变化             数据库记录更新、服务状态变更
+阈值触发             CPU 使用率 > 80%、队列长度 > 100
+```
+
+**前置条件检查。** 在启动循环前，验证必要条件是否满足：
+
+```python
+def can_start_loop(task):
+    # 资源检查
+    if not enough_resources():
+        return False, "资源不足"
+
+    # 依赖检查
+    if not dependencies_met(task):
+        return False, "依赖未就绪"
+
+    # 并发检查：避免重复执行
+    if is_already_running(task):
+        return False, "任务已在运行"
+
+    # 状态检查：系统是否健康
+    if system_unhealthy():
+        return False, "系统状态异常"
+
+    # 优先级检查：是否有更高优先级的任务
+    if has_higher_priority_task():
+        return False, "等待高优先级任务"
+
+    return True, "可以启动"
+```
+
+**幂等性保证。** 如果同一个事件可能触发多次循环（比如用户重复点击按钮），循环设计必须保证幂等性——多次执行和一次执行的结果相同。
+
+### 10.3 退出条件：什么时候停止循环
+
+退出条件比入口条件更重要。一个没有明确退出条件的循环，就是一个潜在的定时炸弹。
+
+**成功退出。** 任务完成，达到预期目标：
+
+```python
+def is_success(result):
+    # 代码生成：测试全部通过
+    if task_type == "code_gen":
+        return result.tests_passed and result.coverage > 0.8
+
+    # 信息检索：找到足够的相关信息
+    if task_type == "search":
+        return len(result.relevant_docs) >= 3
+
+    # 数据分析：生成完整报告
+    if task_type == "analysis":
+        return result.report_complete and result.confidence > 0.9
+```
+
+**失败退出。** 明确定义什么情况下应该放弃：
+
+```text
+失败类型              处理方式
+──────────────────────────────────────────────
+达到最大迭代次数       返回当前最佳结果，标记为"未完成"
+超过成本预算          终止执行，返回已完成的中间结果
+超时                  强制终止，记录断点以便恢复
+连续失败 N 次         触发告警，请求人工介入
+检测到死循环          立即终止，保存状态供分析
+```
+
+**收敛检测。** 判断循环是否在取得进展：
+
+```python
+def is_converging(history, window=3):
+    if len(history) < window:
+        return True  # 历史太短，继续观察
+
+    recent = history[-window:]
+
+    # 指标停滞：连续 N 轮改进 < 阈值
+    improvements = [history[i].score - history[i-1].score
+                    for i in range(-window+1, 0)]
+    if all(imp < 0.01 for imp in improvements):
+        return False  # 停滞
+
+    # 震荡检测：指标在两个值之间反复跳动
+    if len(set(recent)) <= 2 and len(recent) >= 4:
+        return False  # 震荡
+
+    # 退化检测：指标持续下降
+    if all(recent[i].score < recent[i-1].score
+           for i in range(1, len(recent))):
+        return False  # 退化
+
+    return True
+```
+
+**外部信号。** 循环可能需要响应外部事件而终止：
+
+- 用户取消（用户点击"停止"按钮）
+- 系统关闭（收到 SIGTERM 信号）
+- 更高优先级任务抢占
+- 依赖服务不可用
+
+**优雅退出。** 无论哪种退出方式，都应该：
+
+```python
+def graceful_exit(loop_state, exit_reason):
+    # 1. 保存当前进度
+    save_checkpoint(loop_state)
+
+    # 2. 清理临时资源
+    cleanup_temp_files()
+    release_locks()
+
+    # 3. 记录退出原因
+    log_exit(exit_reason, loop_state.iteration, loop_state.cost)
+
+    # 4. 通知相关方
+    notify_stakeholders(exit_reason)
+
+    # 5. 返回结果（即使是不完整的结果）
+    return loop_state.best_result
+```
+
+### 10.4 规范的工程化
+
+把频率、入口、出口条件组合起来，形成一个完整的循环规范：
+
+```yaml
+loop_spec:
+  name: "bug_fix_loop"
+
+  # 频率控制
+  frequency:
+    min_interval: 5s        # 最快 5 秒一次
+    max_interval: 5m        # 最慢 5 分钟一次
+    adaptive: true          # 根据成功/失败自适应
+    backoff_factor: 2       # 失败时退避倍数
+
+  # 入口条件
+  entry:
+    triggers:
+      - type: "event"
+        source: "issue_tracker"
+        event: "bug_assigned"
+      - type: "manual"
+        source: "user_request"
+    preconditions:
+      - check: "resource_available"
+        threshold: "cpu < 80%"
+      - check: "not_duplicate"
+        key: "bug_id"
+    priority_gate: "high"   # 只处理高优先级 bug
+
+  # 退出条件
+  exit:
+    success:
+      - "tests_pass"
+      - "coverage >= 80%"
+      - "no_lint_errors"
+    failure:
+      max_iterations: 10
+      max_cost: "$5.00"
+      timeout: "30m"
+      consecutive_failures: 3
+    convergence:
+      stagnation_window: 3
+      min_improvement: 0.01
+    external_signals:
+      - "user_cancel"
+      - "system_shutdown"
+      - "higher_priority_task"
+
+  # 退出处理
+  on_exit:
+    save_checkpoint: true
+    cleanup: true
+    notify: ["developer", "slack_channel"]
+    fallback: "human_review"
+```
+
+一个好的循环规范，让循环的行为可预测、可审计、可调试。它不只是技术实现，更是工程纪律的体现。
+
+## 11. 循环模式的选择
+
+### 11.1 按任务类型选择
 
 | 任务类型 | 推荐循环模式 | 理由 |
 |----------|-------------|------|
@@ -577,7 +824,7 @@ Round 5: Thought → Action(test) → Observation ✓
 | 代码审查 | 多 Agent 对话循环 | 需要不同视角的交叉验证 |
 | 学习类任务 | Reflexion | 需要从失败中积累经验 |
 
-### 10.2 按复杂度选择
+### 11.2 按复杂度选择
 
 **简单任务（1-2 步）。** 不需要循环，直接执行。
 
@@ -587,7 +834,7 @@ Round 5: Thought → Action(test) → Observation ✓
 
 **非常复杂的任务。** 多 Agent 协作 + 层级循环。
 
-### 10.3 组合使用
+### 11.3 组合使用
 
 实际系统中，多种循环模式经常组合使用：
 
