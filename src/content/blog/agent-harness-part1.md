@@ -97,6 +97,7 @@ while not done:
 | **AutoGen** | 对话驱动 | 多 Agent 通过对话协议协作，循环嵌入在对话中 |
 | **CrewAI** | 任务编排 | 预定义任务和角色，按顺序或并行执行 |
 | **OpenAI Assistants** | 托管循环 | 平台管理执行循环，开发者只定义工具和指令 |
+| **OpenAI Agents SDK** | Handoff 协议 | 生产级多 Agent SDK，支持 handoff、guardrails 和 tracing |
 
 LangGraph 的设计值得多说几句。它把 Agent 的执行流程建模为一个**有向图**：节点是计算步骤（LLM 调用、工具执行、条件判断），边是控制流。这让开发者可以精确控制循环的每一步，包括在哪里分支、在哪里合并、在哪里允许人工介入。
 
@@ -269,6 +270,10 @@ Agent 之间怎么交流，是多 Agent 系统的核心设计问题。
 > Wu, Yen, Liu, et al. 2023.
 > 提出多 Agent 对话框架，让多个 LLM Agent 通过对话协作解决复杂任务。
 
+> 📄 **MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework**
+> Hong, Zhuge, Chen, et al. ICLR 2024.
+> 将标准化操作流程（SOP）引入多 Agent 系统，用流水线范式减少协作中的级联幻觉。
+
 ## 6. 规划与反思：Agent 的高阶能力
 
 ### 6.1 任务分解
@@ -323,12 +328,20 @@ Agent Harness 的编排层，本质上是在回答一个问题：**怎样把 LLM
 
 ## 参考文献
 
-Yao, S., Zhao, J., Yu, D., et al. (2023). *ReAct: Synergizing Reasoning and Acting in Language Models*. ICLR 2023.
+Yao, S., Zhao, J., Yu, D., et al. (2023). *ReAct: Synergizing Reasoning and Acting in Language Models*. ICLR 2023. https://arxiv.org/abs/2210.03629
 
-Packer, C., Wooders, S., Lin, J., et al. (2023). *MemGPT: Towards LLMs as Operating Systems*.
+Packer, C., Wooders, S., Lin, J., et al. (2023). *MemGPT: Towards LLMs as Operating Systems*. https://arxiv.org/abs/2310.08560
 
-Wu, Q., Yen, G., Liu, X., et al. (2023). *AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation*.
+Wu, Q., Yen, G., Liu, X., et al. (2023). *AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation*. https://arxiv.org/abs/2308.08155
 
-Shinn, N., Cassano, F., Gopinath, A., et al. (2023). *Reflexion: Language Agents with Verbal Reinforcement Learning*. NeurIPS 2023.
+Hong, S., Zhuge, M., Chen, J., et al. (2024). *MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework*. ICLR 2024. https://arxiv.org/abs/2308.00352
 
-Yao, S., Yu, D., Zhao, J., et al. (2023). *Tree of Thoughts: Deliberate Problem Solving with Large Language Models*. NeurIPS 2023.
+Shinn, N., Cassano, F., Gopinath, A., et al. (2023). *Reflexion: Language Agents with Verbal Reinforcement Learning*. NeurIPS 2023. https://arxiv.org/abs/2303.11366
+
+Yao, S., Yu, D., Zhao, J., et al. (2023). *Tree of Thoughts: Deliberate Problem Solving with Large Language Models*. NeurIPS 2023. https://arxiv.org/abs/2305.10601
+
+OpenAI. (2025). *OpenAI Agents SDK*. https://github.com/openai/openai-agents-python
+
+LangChain. (2024). *LangGraph: Build, manage, and deploy long-running, stateful agents*. https://github.com/langchain-ai/langgraph
+
+Tang, G., et al. (2024). *Large Language Model based Multi-Agents: A Survey of Progress and Challenges*.

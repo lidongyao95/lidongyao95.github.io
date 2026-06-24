@@ -400,7 +400,7 @@ MCP Server 拥有真实世界的操作能力，安全是头等大事。
 
 **社区 Server。** 开源社区贡献了大量 Server，覆盖文件系统、数据库、搜索引擎、代码仓库、项目管理工具等。
 
-**Host 支持。** Claude Desktop 是第一个支持 MCP 的应用，随后 Cursor、Windsurf、Zed 等 AI 编辑器也加入了支持。OpenAI 也在 2025 年初宣布支持 MCP。
+**Host 支持。** Claude Desktop 是第一个支持 MCP 的应用，随后 Cursor、Windsurf、Zed 等 AI 编辑器也加入了支持。2025 年 3 月，**OpenAI 正式宣布在 ChatGPT、API 和 Agents SDK 中原生支持 MCP**，这标志着 MCP 从 Anthropic 主导的项目正式成为行业事实标准。Google、Microsoft 等公司也陆续跟进。
 
 ### 7.2 典型应用场景
 
@@ -418,7 +418,9 @@ MCP Server 拥有真实世界的操作能力，安全是头等大事。
 
 **生态碎片化风险。** MCP 虽然开源了，但不是所有人都愿意采用同一个标准。如果 Google 和 OpenAI 各自推一套协议，又回到了 N×M 问题。
 
-**安全模型不够成熟。** MCP 的安全机制还在早期。生产环境需要更完善的认证、授权和审计方案。
+**安全模型不够成熟。** MCP 的安全机制还在早期。Maloyan 和 Namiot（2026）在安全分析中发现了 MCP 的三个结构性漏洞：未验证的权限声明、未认证的采样请求（可能被注入攻击利用）、以及多 Server 场景下的信任假设问题。他们提出的协议更新显著降低了攻击成功率。生产环境需要更完善的认证、授权和审计方案。
+
+**工具描述质量堪忧。** Hasan 等人（2026）首次系统研究了 MCP 工具描述的质量，发现几乎所有工具描述都存在缺陷——超过一半未能解释其核心功能。增强描述可以提高任务完成率，但也增加了 token 成本，揭示了描述质量与成本之间的权衡。
 
 **调试困难。** 当一个 MCP 工具调用出错时，需要追踪从 Client 到 Server 再到外部 API 的整条链路。目前的工具链对调试支持还不够好。
 
@@ -446,8 +448,18 @@ MCP 解决的不是一个技术问题，而是一个生态问题。
 
 ## 参考文献
 
-Anthropic. (2024). *Introducing the Model Context Protocol*. Anthropic Blog.
+Anthropic. (2024). *Introducing the Model Context Protocol*. https://www.anthropic.com/news/model-context-protocol
 
 Model Context Protocol Specification. https://modelcontextprotocol.io/specification
 
-Anthropic. (2024). *Model Context Protocol SDK*. GitHub. https://github.com/modelcontextprotocol
+Anthropic. (2024). *Model Context Protocol SDK*. https://github.com/modelcontextprotocol
+
+OpenAI. (2025). *Introducing MCP Support in ChatGPT, API, and Agents SDK*. https://openai.com
+
+Maloyan, N., Namiot, D. (2026). *Breaking the Protocol: Security Analysis of the Model Context Protocol Specification and Prompt Injection Vulnerabilities in Tool-Integrated LLM Agents*. https://arxiv.org/abs/2601.17549
+
+Hasan, M., Li, H., Rajbahadur, G., Adams, B., Hassan, A. (2026). *Model Context Protocol (MCP) Tool Descriptions Are Smelly! Towards Improving AI Agent Efficiency with Augmented MCP Tool Descriptions*. https://arxiv.org/abs/2602.14878
+
+Ahmadi, A., Sharif, S., Banad, Y. (2025). *MCP Bridge: A Lightweight, LLM-Agnostic RESTful Proxy for Model Context Protocol Servers*. https://arxiv.org/abs/2504.08999
+
+Jia, H., Liao, J., Zhang, X., et al. (2025). *OSWorld-MCP: Benchmarking MCP Tool Invocation In Computer-Use Agents*. https://arxiv.org/abs/2510.24563
