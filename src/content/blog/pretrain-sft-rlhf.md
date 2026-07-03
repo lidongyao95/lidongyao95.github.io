@@ -97,6 +97,28 @@ $$\mathcal{L}_{\text{SFT}} = -\sum_{t \in \text{output}} \log P(y_t \mid x, y_{<
 
 这正是 RLHF 要解决的问题。
 
+### 2.3 一个意外发现：SFT 甚至不需要「指令」
+
+前面说 SFT 需要高质量的「指令-回复」对，但 2024 年的一项研究对这个假设提出了挑战。
+
+Xie、Syu 和 Lee 在 **Non-instructional Fine-tuning（NIF）** 的工作中做了一个反直觉的实验：他们用随机网页文本（OpenWebText）的前半段作为「输入」，让 GPT-4 续写后半段作为「输出」，构造了一批**完全不含任何指令**的训练数据。没有「请解释」，没有「请总结」，没有任何人类编写的 prompt。
+
+```text
+传统 SFT 数据:
+  输入: "请用通俗语言解释什么是梯度下降。"     ← 明确的指令
+  输出: "梯度下降可以理解为在山坡上找最低点……"  ← 对指令的回复
+
+NIF 数据:
+  输入: "The history of the Roman Empire can be divided into..."  ← 随机网页前半段
+  输出: "...three major periods: the Republic, the Principate,..."  ← GPT-4 续写后半段
+```
+
+结果令人惊讶：在这些**非指令数据**上微调后的 base model（Mistral、LLaMA 等）竟然获得了指令遵循能力。它们从未见过「请做 X」这种格式，但训练后你给它一个指令，它就能执行。
+
+这个发现为什么重要？它暗示了 **指令遵循能力可能不是被「教」出来的，而是被「唤醒」的。** 模型在 Pre-Training 阶段已经见过足够多的指令-回复模式（互联网上到处都是问答论坛、教程、FAQ），SFT 的真正作用或许不是「教会」模型听懂指令，而是**调整模型的分布，让指令遵循这种已经存在于参数中的能力被激发出来**。
+
+NIF 甚至可以叠加在 RLHF 之上进一步提升效果——他们最大的模型在 Arena Hard 上达到了接近 GPT-4-turbo 的水平。这意味着从 Pre-Training 到 Alignment 的整条流水线中，SFT 这一步的门槛可能比我们想象的要低得多：你甚至不需要精心设计指令数据，只要有足够好的「续写」数据就够了。
+
 ## 3. RLHF：Alignment 第二步，进入社会被真实反馈打磨
 
 ### 3.1 为什么 SFT 不够
@@ -420,3 +442,8 @@ RLHF 不是对齐的终点，而是一个起点。近年来出现了一系列改
 > DeepSeek-AI. 2024.
 > 通过 RL 训练出强推理模型，再蒸馏到小模型，展示了 RL 能力蒸馏的巨大潜力。
 > [arxiv.org/abs/2501.12948](https://arxiv.org/abs/2501.12948)
+
+> 📄 **Instruction Tuning without Instructional Data**
+> Juncheng Xie, Shensian Syu, Hung-yi Lee. 2024.
+> 提出 Non-instructional Fine-tuning，证明用随机网页续写数据（不含任何指令）也能让 base model 获得指令遵循能力，挑战了 SFT 必须依赖指令-回复对的传统认知。
+> [arxiv.org/abs/2409.00096](https://arxiv.org/abs/2409.00096)
