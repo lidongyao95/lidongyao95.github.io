@@ -119,6 +119,19 @@ NIF 数据:
 
 NIF 甚至可以叠加在 RLHF 之上进一步提升效果——他们最大的模型在 Arena Hard 上达到了接近 GPT-4-turbo 的水平。这意味着从 Pre-Training 到 Alignment 的整条流水线中，SFT 这一步的门槛可能比我们想象的要低得多：你甚至不需要精心设计指令数据，只要有足够好的「续写」数据就够了。
 
+如果说 NIF 是从数据角度挑战了「SFT 必须教」的认知，另一项工作则从更底层的角度回答了「alignment 到底改变了什么」。Lin 等人在 **The Unlocking Spell on Base LLMs** 中直接比较了 base model 和 aligned model 在每个 token 位置上的概率分布。结论出人意料：**在绝大多数 token 位置上，两个模型的预测几乎一模一样。** 差异主要集中在风格层面——比如 aligned model 更倾向于用「好的，让我来帮你……」开头，或者更频繁地使用结构化格式。
+
+换句话说，alignment 没有改变模型的「知识」和「推理能力」，只是改变了它的「说话方式」。论文作者据此提出了 **URIAL**：不做任何微调，只给 base model 一个 system prompt 加上 3 个固定的风格示范示例（in-context learning），就能让它在指令遵循评测上达到甚至超过传统 SFT+RLHF 模型的水平。
+
+```text
+传统 Alignment:  base model → SFT → RLHF → aligned model（改参数）
+URIAL:           base model + system prompt + 3 个示例 → 等效 aligned model（不改参数）
+```
+
+NIF 和 URIAL 从两个方向指向了同一个结论：**SFT 和 RLHF 更像是一把「解锁的钥匙」，而不是一堂「教授知识的课」。** Pre-Training 已经赋予了模型足够强的能力底座，alignment 做的是调整输出风格和行为偏好，让这把锁打开、能力释放出来。这也解释了为什么 NIF 用非指令数据就能唤醒指令遵循——因为需要唤醒的东西早就在参数里了。
+
+当然，这不意味着 alignment 不重要。URIAL 的 in-context 方案在生产环境中并不实用（每次推理都要带上示例，且行为不够稳定），SFT+RLHF 仍然是让模型可靠、安全、可控的标准做法。但这两项工作让我们对 alignment 的本质有了更深的理解：**它不是在白纸上画画，而是在已有的画作上涂一层清漆。**
+
 ## 3. RLHF：Alignment 第二步，进入社会被真实反馈打磨
 
 ### 3.1 为什么 SFT 不够
@@ -447,3 +460,8 @@ RLHF 不是对齐的终点，而是一个起点。近年来出现了一系列改
 > Juncheng Xie, Shensian Syu, Hung-yi Lee. 2024.
 > 提出 Non-instructional Fine-tuning，证明用随机网页续写数据（不含任何指令）也能让 base model 获得指令遵循能力，挑战了 SFT 必须依赖指令-回复对的传统认知。
 > [arxiv.org/abs/2409.00096](https://arxiv.org/abs/2409.00096)
+
+> 📄 **The Unlocking Spell on Base LLMs: Rethinking Alignment via In-Context Learning**
+> Bill Yuchen Lin, Abhilasha Ravichander, Ximing Lu, Nouha Dziri, Melanie Sclar, Khyathi Chandu, Chandra Bhagavatula, Yejin Choi. 2023.
+> 通过 token 级分布分析揭示 alignment 的改变主要在风格层面，提出 URIAL（system prompt + 3 个示例的 in-context learning）即可让 base model 达到 aligned model 水平。
+> [arxiv.org/abs/2312.01552](https://arxiv.org/abs/2312.01552)
