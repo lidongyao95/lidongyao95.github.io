@@ -2,44 +2,121 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
+import KnowledgeGraph from '../../components/KnowledgeGraph';
 import { getCollection } from 'astro:content';
+import { buildGraphData } from '../../utils/buildGraphData';
 
 const posts = await getCollection('blog');
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf() || a.id.localeCompare(b.id));
+
+const graphData = buildGraphData();
 ---
 
 <BaseLayout title="博客 — Douglas Li" description="关于软件工程和技术的思考。">
   <Nav />
   <main class="pt-28 pb-20 px-6">
-    <div class="max-w-3xl mx-auto">
+    <div id="blog-container" class="max-w-3xl mx-auto transition-all duration-500">
       <h1 class="text-4xl font-bold text-accent mb-4">博客</h1>
-      <p class="text-gray-500 mb-12">关于软件工程和技术的思考。</p>
+      <p class="text-gray-500 mb-8">关于软件工程和技术的思考。</p>
 
-      {posts.length === 0 ? (
-        <p class="text-gray-600">暂无文章，敬请期待！</p>
-      ) : (
-        posts.map((post) => (
-          <a
-            href={`/blog/${post.id}`}
-            class="block py-5 border-b border-white/5 hover:border-accent/20 transition-colors group"
-          >
-            <span class="text-xs text-gray-600">
-              {post.data.date.toLocaleDateString('zh-CN', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </span>
-            <h2 class="text-xl text-white group-hover:text-accent transition-colors mt-1">
-              {post.data.title}
-            </h2>
-            {post.data.excerpt && (
-              <p class="text-sm text-gray-500 mt-2">{post.data.excerpt}</p>
-            )}
-          </a>
-        ))
-      )}
+      <div class="flex gap-2 mb-8" role="tablist" aria-label="博客视图">
+        <button
+          type="button"
+          data-tab="list"
+          role="tab"
+          aria-selected="true"
+          aria-controls="list-view"
+          class="px-4 py-2 text-sm rounded-lg transition-colors duration-200 bg-accent/10 text-accent"
+        >
+          列表
+        </button>
+        <button
+          type="button"
+          data-tab="graph"
+          role="tab"
+          aria-selected="false"
+          aria-controls="graph-view"
+          class="px-4 py-2 text-sm rounded-lg transition-colors duration-200 text-white/40 hover:text-white/60"
+        >
+          知识图谱
+        </button>
+      </div>
+
+      <div id="list-view" role="tabpanel">
+        {posts.length === 0 ? (
+          <p class="text-gray-600">暂无文章，敬请期待！</p>
+        ) : (
+          posts.map((post) => (
+            <a
+              href={`/blog/${post.id}`}
+              class="block py-5 border-b border-white/5 hover:border-accent/20 transition-colors group"
+            >
+              <span class="text-xs text-gray-600">
+                {post.data.date.toLocaleDateString('zh-CN', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </span>
+              <h2 class="text-xl text-white group-hover:text-accent transition-colors mt-1">
+                {post.data.title}
+              </h2>
+              {post.data.excerpt && (
+                <p class="text-sm text-gray-500 mt-2">{post.data.excerpt}</p>
+              )}
+            </a>
+          ))
+        )}
+      </div>
+
+      <div id="graph-view" role="tabpanel" hidden>
+        <KnowledgeGraph client:only="react" data={graphData} />
+      </div>
     </div>
   </main>
   <Footer />
 </BaseLayout>
+
+<script>
+  // Tab switching
+  const container = document.getElementById('blog-container')!;
+  const listView = document.getElementById('list-view')!;
+  const graphView = document.getElementById('graph-view')!;
+  const tabs = document.querySelectorAll<HTMLElement>('[data-tab]');
+
+  function switchTab(target: string) {
+    listView.hidden = target !== 'list';
+    graphView.hidden = target !== 'graph';
+
+    if (target === 'graph') {
+      container.classList.remove('max-w-3xl');
+      container.classList.add('max-w-6xl');
+    } else {
+      container.classList.remove('max-w-6xl');
+      container.classList.add('max-w-3xl');
+    }
+
+    tabs.forEach((t) => {
+      const isActive = t.dataset.tab === target;
+      t.setAttribute('aria-selected', String(isActive));
+
+      if (isActive) {
+        t.classList.add('bg-accent/10', 'text-accent');
+        t.classList.remove('text-white/40');
+      } else {
+        t.classList.remove('bg-accent/10', 'text-accent');
+        t.classList.add('text-white/40');
+      }
+    });
+
+    if (target === 'graph') {
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new Event('resize'));
+      });
+    }
+  }
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab!));
+  });
+</script>
