@@ -10,113 +10,175 @@ const posts = await getCollection('blog');
 posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf() || a.id.localeCompare(b.id));
 
 const graphData = buildGraphData();
+const articleNodeIds = new Map<string, string[]>();
+
+for (const node of graphData.nodes) {
+  for (const articleId of node.articleIds) {
+    const nodeIds = articleNodeIds.get(articleId) || [];
+    nodeIds.push(node.id);
+    articleNodeIds.set(articleId, nodeIds);
+  }
+}
+
+const graphListData = JSON.stringify(
+  graphData.nodes.map((node) => ({
+    id: node.id,
+    label: node.label,
+    description: node.description,
+    groupLabel: node.groupLabel,
+    articleIds: node.articleIds,
+  })),
+).replace(/</g, '\\u003c');
 ---
 
 <BaseLayout title="博客 — Douglas Li" description="关于软件工程和技术的思考。">
   <Nav />
-  <main class="pt-28 pb-20 px-6">
-    <div id="blog-container" class="max-w-3xl mx-auto transition-all duration-500">
-      <h1 class="text-4xl font-bold text-accent mb-4">博客</h1>
-      <p class="text-gray-500 mb-8">关于软件工程和技术的思考。</p>
-
-      <div class="flex gap-2 mb-8" role="tablist" aria-label="博客视图">
-        <button
-          type="button"
-          data-tab="list"
-          role="tab"
-          aria-selected="true"
-          aria-controls="list-view"
-          class="px-4 py-2 text-sm rounded-lg transition-colors duration-200 bg-accent/10 text-accent"
-        >
-          列表
-        </button>
-        <button
-          type="button"
-          data-tab="graph"
-          role="tab"
-          aria-selected="false"
-          aria-controls="graph-view"
-          class="px-4 py-2 text-sm rounded-lg transition-colors duration-200 text-white/40 hover:text-white/60"
-        >
-          知识图谱
-        </button>
+  <main class="px-5 pb-20 pt-28 sm:px-6">
+    <div class="mx-auto max-w-7xl">
+      <div class="mb-8">
+        <h1 class="mb-4 text-4xl font-bold text-accent">博客</h1>
+        <p class="max-w-2xl text-gray-500">
+          关于软件工程、AI 系统、模型训练和计算机图形学的思考。
+        </p>
       </div>
 
-      <div id="list-view" role="tabpanel">
-        {posts.length === 0 ? (
-          <p class="text-gray-600">暂无文章，敬请期待！</p>
-        ) : (
-          posts.map((post) => (
-            <a
-              href={`/blog/${post.id}`}
-              class="block py-5 border-b border-white/5 hover:border-accent/20 transition-colors group"
-            >
-              <span class="text-xs text-gray-600">
-                {post.data.date.toLocaleDateString('zh-CN', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </span>
-              <h2 class="text-xl text-white group-hover:text-accent transition-colors mt-1">
-                {post.data.title}
-              </h2>
-              {post.data.excerpt && (
-                <p class="text-sm text-gray-500 mt-2">{post.data.excerpt}</p>
+      <section class="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(360px,2fr)] lg:items-start">
+        <div>
+          <div class="mb-3 flex items-center justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-semibold text-white">知识图谱</h2>
+              <p class="mt-1 text-sm text-gray-500">
+                点击节点，在右侧查看它关联的一篇或多篇博客。
+              </p>
+            </div>
+          </div>
+          <KnowledgeGraph client:only="react" data={graphData} />
+        </div>
+
+        <aside
+          class="rounded-lg border border-white/10 bg-bg-dark/45"
+          aria-live="polite"
+          aria-label="博客列表"
+        >
+          <div class="sticky top-24 max-h-none overflow-visible p-4 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
+            <div class="mb-4 border-b border-white/10 pb-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p id="blog-list-kicker" class="text-xs text-gray-600">全部文章</p>
+                  <h2 id="blog-list-title" class="mt-1 text-xl font-semibold text-white">
+                    时间倒序
+                  </h2>
+                </div>
+                <button
+                  id="blog-list-reset"
+                  type="button"
+                  hidden
+                  class="rounded-md border border-white/10 px-3 py-1.5 text-xs text-gray-400 transition-colors hover:border-accent/40 hover:text-accent"
+                >
+                  返回全部
+                </button>
+              </div>
+              <p id="blog-list-description" class="mt-3 text-sm leading-relaxed text-gray-500">
+                默认显示所有博客。选择左侧节点后，这里会聚焦到该主题下的文章。
+              </p>
+              <p id="blog-list-count" class="mt-2 text-xs text-gray-600">
+                共 {posts.length} 篇
+              </p>
+            </div>
+
+            <div id="blog-list-items" class="divide-y divide-white/5">
+              {posts.length === 0 ? (
+                <p class="py-8 text-gray-600">暂无文章，敬请期待！</p>
+              ) : (
+                posts.map((post) => {
+                  const nodeIds = articleNodeIds.get(post.id) || [];
+
+                  return (
+                    <a
+                      href={`/blog/${post.id}`}
+                      data-blog-item
+                      data-article-id={post.id}
+                      data-node-ids={nodeIds.join(',')}
+                      class="block py-4 transition-colors hover:bg-white/[0.025]"
+                    >
+                      <span class="text-xs text-gray-600">
+                        {post.data.date.toLocaleDateString('zh-CN', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </span>
+                      <h3 class="mt-1 text-base leading-snug text-white transition-colors hover:text-accent">
+                        {post.data.title}
+                      </h3>
+                      {post.data.excerpt && (
+                        <p class="mt-2 line-clamp-3 text-sm leading-relaxed text-gray-500">
+                          {post.data.excerpt}
+                        </p>
+                      )}
+                    </a>
+                  );
+                })
               )}
-            </a>
-          ))
-        )}
-      </div>
-
-      <div id="graph-view" role="tabpanel" hidden>
-        <KnowledgeGraph client:only="react" data={graphData} />
-      </div>
+            </div>
+          </div>
+        </aside>
+      </section>
     </div>
+
+    <script id="graph-list-data" type="application/json" set:html={graphListData}></script>
   </main>
   <Footer />
 </BaseLayout>
 
 <script>
-  // Tab switching
-  const container = document.getElementById('blog-container')!;
-  const listView = document.getElementById('list-view')!;
-  const graphView = document.getElementById('graph-view')!;
-  const tabs = document.querySelectorAll<HTMLElement>('[data-tab]');
+  const dataEl = document.getElementById('graph-list-data');
+  const nodes = JSON.parse(dataEl?.textContent || '[]');
+  const kicker = document.getElementById('blog-list-kicker')!;
+  const title = document.getElementById('blog-list-title')!;
+  const description = document.getElementById('blog-list-description')!;
+  const count = document.getElementById('blog-list-count')!;
+  const reset = document.getElementById('blog-list-reset') as HTMLButtonElement;
+  const items = Array.from(document.querySelectorAll<HTMLElement>('[data-blog-item]'));
 
-  function switchTab(target: string) {
-    listView.hidden = target !== 'list';
-    graphView.hidden = target !== 'graph';
-
-    if (target === 'graph') {
-      container.classList.remove('max-w-3xl');
-      container.classList.add('max-w-6xl');
-    } else {
-      container.classList.remove('max-w-6xl');
-      container.classList.add('max-w-3xl');
-    }
-
-    tabs.forEach((t) => {
-      const isActive = t.dataset.tab === target;
-      t.setAttribute('aria-selected', String(isActive));
-
-      if (isActive) {
-        t.classList.add('bg-accent/10', 'text-accent');
-        t.classList.remove('text-white/40');
-      } else {
-        t.classList.remove('bg-accent/10', 'text-accent');
-        t.classList.add('text-white/40');
-      }
-    });
-
-    if (target === 'graph') {
-      requestAnimationFrame(() => {
-        window.dispatchEvent(new Event('resize'));
-      });
-    }
+  function showAll() {
+    for (const item of items) item.style.display = '';
+    kicker.textContent = '全部文章';
+    title.textContent = '时间倒序';
+    description.textContent = '默认显示所有博客。选择左侧节点后，这里会聚焦到该主题下的文章。';
+    count.textContent = `共 ${items.length} 篇`;
+    reset.hidden = true;
   }
 
-  tabs.forEach((tab) => {
-    tab.addEventListener('click', () => switchTab(tab.dataset.tab!));
+  function showNode(node: any) {
+    const selected = nodes.find((item: any) => item.id === node.id) || node;
+    let visible = 0;
+
+    for (const item of items) {
+      const nodeIds = (item.dataset.nodeIds || '').split(',').filter(Boolean);
+      const shouldShow = nodeIds.includes(selected.id);
+      item.style.display = shouldShow ? '' : 'none';
+      if (shouldShow) visible += 1;
+    }
+
+    kicker.textContent = selected.groupLabel || '相关主题';
+    title.textContent = selected.label || '相关博客';
+    description.textContent = selected.description || '该节点关联的博客如下。';
+    count.textContent = `共 ${visible} 篇`;
+    reset.hidden = false;
+  }
+
+  window.addEventListener('knowledge-graph-select', (event) => {
+    const node = (event as CustomEvent).detail;
+    if (!node) {
+      showAll();
+      return;
+    }
+    showNode(node);
+  });
+
+  reset.addEventListener('click', () => {
+    showAll();
+    window.dispatchEvent(new CustomEvent('knowledge-graph-select', { detail: null }));
   });
 </script>

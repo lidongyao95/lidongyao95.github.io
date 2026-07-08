@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="640" viewBox="0 0 1120 640" role="img" aria-labelledby="title desc">
+  <title id="title">Simple stereo geometry</title>
+  <desc id="desc">Two calibrated cameras separated by baseline b observe the same 3D point, producing left and right image coordinates.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#f97316"/>
+    </marker>
+    <linearGradient id="plane" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#38bdf8" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+  <rect width="1120" height="640" rx="26" fill="#08111f"/>
+  <path d="M80 548H1040" stroke="#1f2937" stroke-width="2"/>
+
+  <g transform="translate(250 470)">
+    <path d="M-64 54L0-34L64 54Z" fill="#0f172a" stroke="#67e8f9" stroke-width="4"/>
+    <circle cx="0" cy="0" r="12" fill="#67e8f9"/>
+    <text x="-72" y="92" fill="#e5e7eb" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700">Left camera</text>
+    <text x="-20" y="122" fill="#93c5fd" font-family="Inter, Arial, sans-serif" font-size="22">O</text>
+  </g>
+
+  <g transform="translate(730 470)">
+    <path d="M-64 54L0-34L64 54Z" fill="#0f172a" stroke="#a78bfa" stroke-width="4"/>
+    <circle cx="0" cy="0" r="12" fill="#a78bfa"/>
+    <text x="-80" y="92" fill="#e5e7eb" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700">Right camera</text>
+    <text x="-22" y="122" fill="#c4b5fd" font-family="Inter, Arial, sans-serif" font-size="22">O'</text>
+  </g>
+
+  <rect x="186" y="300" width="128" height="82" rx="10" fill="url(#plane)" stroke="#67e8f9" stroke-width="3"/>
+  <rect x="666" y="300" width="128" height="82" rx="10" fill="url(#plane)" stroke="#a78bfa" stroke-width="3"/>
+  <text x="194" y="286" fill="#bae6fd" font-family="Inter, Arial, sans-serif" font-size="22">left image</text>
+  <text x="670" y="286" fill="#ddd6fe" font-family="Inter, Arial, sans-serif" font-size="22">right image</text>
+
+  <circle cx="250" cy="342" r="8" fill="#fb923c"/>
+  <circle cx="715" cy="342" r="8" fill="#fb923c"/>
+  <text x="218" y="332" fill="#fed7aa" font-family="Inter, Arial, sans-serif" font-size="22">(u1, v1)</text>
+  <text x="728" y="332" fill="#fed7aa" font-family="Inter, Arial, sans-serif" font-size="22">(u2, v2)</text>
+
+  <circle cx="515" cy="118" r="15" fill="#f97316"/>
+  <text x="542" y="126" fill="#ffedd5" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">P = (x, y, z)</text>
+
+  <line x1="250" y1="470" x2="515" y2="118" stroke="#67e8f9" stroke-width="4" stroke-dasharray="10 10"/>
+  <line x1="730" y1="470" x2="515" y2="118" stroke="#a78bfa" stroke-width="4" stroke-dasharray="10 10"/>
+  <line x1="250" y1="470" x2="250" y2="342" stroke="#67e8f9" stroke-width="3" opacity="0.7"/>
+  <line x1="730" y1="470" x2="715" y2="342" stroke="#a78bfa" stroke-width="3" opacity="0.7"/>
+
+  <line x1="250" y1="560" x2="730" y2="560" stroke="#f97316" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="466" y="604" fill="#fdba74" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700">baseline b</text>
+
+  <path d="M250 470 L515 470 L515 118" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="6 8"/>
+  <text x="528" y="306" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="24">depth z</text>
+
+  <text x="64" y="68" fill="#f8fafc" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800">Two views turn a ray into a point</text>
+  <text x="64" y="108" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="22">A single camera gives one outgoing ray; two calibrated cameras triangulate the 3D point.</text>
+</svg>

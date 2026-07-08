@@ -121,6 +121,53 @@ test.describe('Blog pages', () => {
   }
 });
 
+test.describe('Blog knowledge graph', () => {
+  test('filters the article list from graph node selections', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/blog');
+
+    await expect(page.locator('[data-testid="knowledge-graph"] canvas')).toBeVisible();
+    await expect(page.locator('[data-blog-item]:visible')).toHaveCount(blogPosts.length);
+
+    const graphNodes = await page.locator('#graph-list-data').evaluate((el) => JSON.parse(el.textContent || '[]'));
+    expect(graphNodes.some((node) => node.id === 'graphics-camera-model' && node.label === '线性相机模型')).toBe(true);
+    expect(graphNodes.some((node) => node.id === 'graphics-simple-stereo' && node.label === 'Simple Stereo')).toBe(true);
+    expect(graphNodes.some((node) => node.id === 'rag-system' && node.articleIds.length === 2)).toBe(true);
+
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('knowledge-graph-select', {
+        detail: { id: 'rag-system' },
+      }));
+    });
+    await expect(page.locator('#blog-list-title')).toHaveText('RAG');
+    await expect(page.locator('[data-blog-item]:visible')).toHaveCount(2);
+    await expect(page.locator('[data-blog-item][data-article-id="rag-basics"]')).toBeVisible();
+    await expect(page.locator('[data-blog-item][data-article-id="rag-engineering"]')).toBeVisible();
+
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('knowledge-graph-select', {
+        detail: { id: 'graphics-camera-model' },
+      }));
+    });
+    await expect(page.locator('#blog-list-title')).toHaveText('线性相机模型');
+    await expect(page.locator('[data-blog-item]:visible')).toHaveCount(1);
+    await expect(page.locator('[data-blog-item][data-article-id="linear-camera-model-calibration"]')).toBeVisible();
+
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('knowledge-graph-select', {
+        detail: { id: 'graphics-simple-stereo' },
+      }));
+    });
+    await expect(page.locator('#blog-list-title')).toHaveText('Simple Stereo');
+    await expect(page.locator('[data-blog-item]:visible')).toHaveCount(1);
+    await expect(page.locator('[data-blog-item][data-article-id="simple-stereo-vision"]')).toBeVisible();
+
+    await page.locator('#blog-list-reset').click();
+    await expect(page.locator('#blog-list-title')).toHaveText('时间倒序');
+    await expect(page.locator('[data-blog-item]:visible')).toHaveCount(blogPosts.length);
+  });
+});
+
 test.describe('External links', () => {
   test('all external links open in new tab', async ({ page }) => {
     await page.goto('/');

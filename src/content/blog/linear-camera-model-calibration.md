@@ -2,6 +2,7 @@
 title: '线性相机模型：把三维世界压到二维像素的一块矩阵'
 date: 2026-07-08
 excerpt: '基于 First Principles of Computer Vision 的 Linear Camera Model 视频，拆解相机标定中的 forward imaging model、homogeneous coordinates、intrinsic/extrinsic matrix 与 projection matrix。'
+group: 'graphics'
 ---
 
 ## 前言
@@ -609,6 +610,8 @@ print(np.mean(np.linalg.norm(reprojected - points_2d, axis=1)))
 如果只懂后半段，我们很容易把图像当成天然存在的矩阵；如果懂了前半段，就会意识到像素本身已经编码了相机姿态、焦距、深度和尺度的不确定性。
 
 这也是为什么几何视觉和深度学习并不是互斥的。一个负责把世界结构讲清楚，一个负责从大量数据中学习难以手写的模式。
+
+如果你想继续沿着几何方向往回走一步，看看两张标定图像如何把深度恢复出来，可以接着读 [Simple Stereo：两台相机如何量出深度](/blog/simple-stereo-vision)。那篇文章会把这里的单相机投影模型扩展成双目系统里的 baseline、disparity 和 triangulation。
 
 ## 10. 资料来源
 

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="620" viewBox="0 0 1120 620" role="img" aria-labelledby="title desc">
+  <title id="title">Depth is inversely proportional to disparity</title>
+  <desc id="desc">A curve shows z equals f times baseline divided by disparity.</desc>
+  <rect width="1120" height="620" rx="26" fill="#0b1020"/>
+  <text x="64" y="72" fill="#f8fafc" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800">Disparity is inverse depth</text>
+  <text x="64" y="112" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="22">Closer points move more between the two images; far points almost overlap.</text>
+
+  <g transform="translate(120 150)">
+    <line x1="0" y1="360" x2="820" y2="360" stroke="#94a3b8" stroke-width="3"/>
+    <line x1="0" y1="360" x2="0" y2="20" stroke="#94a3b8" stroke-width="3"/>
+    <path d="M40 56 C110 64 160 86 210 124 C300 194 382 256 510 304 C610 338 704 350 790 354" fill="none" stroke="#22d3ee" stroke-width="7" stroke-linecap="round"/>
+
+    <g fill="#22d3ee">
+      <circle cx="72" cy="60" r="10"/>
+      <circle cx="228" cy="138" r="10"/>
+      <circle cx="512" cy="304" r="10"/>
+      <circle cx="760" cy="352" r="10"/>
+    </g>
+
+    <text x="742" y="406" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="24">disparity d</text>
+    <text x="-76" y="34" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="24" transform="rotate(-90 -76 34)">depth z</text>
+    <text x="38" y="34" fill="#bae6fd" font-family="Inter, Arial, sans-serif" font-size="22">small d, far away</text>
+    <text x="578" y="294" fill="#bae6fd" font-family="Inter, Arial, sans-serif" font-size="22">large d, nearby</text>
+  </g>
+
+  <g transform="translate(774 166)">
+    <rect x="0" y="0" width="282" height="170" rx="18" fill="#111827" stroke="#334155"/>
+    <text x="28" y="54" fill="#fbbf24" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="800">z = f_x b / d</text>
+    <text x="28" y="94" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="21">f_x: focal length in pixels</text>
+    <text x="28" y="126" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="21">b: camera baseline</text>
+    <text x="28" y="158" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="21">d = u1 - u2</text>
+  </g>
+</svg>
