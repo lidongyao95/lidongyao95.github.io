@@ -88,7 +88,7 @@ Simple Stereo 做的就是后者。
 
 这就是讲义里所谓的 simple stereo 或 simple binocular system。
 
-![Simple Stereo 几何关系](/images/simple-stereo/stereo-geometry.svg)
+![讲义截图：两台相机三角化的 Simple Stereo 几何关系](/images/simple-stereo/triangulation-two-cameras.png)
 
 设场景点为 $(x, y, z)$。它在左图像中的坐标是 $(u_1, v_1)$，在右图像中的坐标是 $(u_2, v_2)$。
 
@@ -145,7 +145,7 @@ $$
 
 它的直觉也很朴素：近处物体在左右眼之间“跳动”得更厉害，所以 disparity 大，深度小；远处物体几乎不跳，所以 disparity 小，深度大。
 
-![Disparity 与深度的反比关系](/images/simple-stereo/disparity-depth.svg)
+![讲义截图：Simple Stereo 中 depth 与 disparity 的反比关系](/images/simple-stereo/depth-disparity.png)
 
 一旦 $z$ 有了，$x$ 和 $y$ 也可以从左相机的投影方程里恢复：
 
@@ -197,7 +197,7 @@ $$
 
 也就是说，给定左图像里一个小窗口，我们不需要在右图像的整张图里找匹配窗口，只需要沿着同一条水平 scan line 往左或往右找。
 
-![Scan-line correspondence](/images/simple-stereo/scanline-correspondence.svg)
+![讲义截图：左右图像对应点位于同一条水平 scan line](/images/simple-stereo/scanline-disparity.png)
 
 这就是 **scan-line correspondence**。它让 Stereo Matching 从“在海里捞针”变成“在同一行里找最像的窗口”。
 
@@ -227,7 +227,7 @@ $$
 
 NCC 是“越大越像”，它更关心局部纹理形状，而不是绝对亮度。
 
-![Simple Stereo pipeline](/images/simple-stereo/stereo-pipeline.svg)
+![讲义截图：基于窗口的 stereo matching 和 template matching](/images/simple-stereo/window-based-methods.png)
 
 ### 4.3 窗口大小是一场取舍
 
