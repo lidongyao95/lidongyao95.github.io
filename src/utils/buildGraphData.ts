@@ -245,13 +245,7 @@ const TOPICS: TopicDefinition[] = [
     group: 'graphics',
     articleIds: ['tum-mvg-variational-multiview-reconstruction'],
   },
-  {
-    id: 'misc-hello',
-    label: 'Hello World',
-    description: '博客起点与站点介绍。',
-    group: 'misc',
-    articleIds: ['hello-world'],
-  },
+
 ];
 
 const STRUCTURAL_LINKS: Array<{ source: string; target: string; weight?: number }> = [
