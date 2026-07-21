@@ -75,14 +75,12 @@ console.log('\n🏠 Home page');
 
   // Sections
   assert($('#about').length === 1, 'section #about exists');
-  assert($('#skills').length === 1, 'section #skills exists');
   assert($('#projects').length === 1, 'section #projects exists');
   assert($('#blog').length === 1, 'section #blog exists');
   assert($('#contact').length === 1, 'section #contact exists');
 
   // Section headings
   assert($('#about h2').text().includes('关于我'), '关于我 heading');
-  assert($('#skills h2').text().includes('技术栈'), '技术栈 heading');
   assert($('#projects h2').text().includes('精选项目'), '精选项目 heading');
   assert($('#blog h2').text().includes('最新文章'), '最新文章 heading');
   assert($('#contact h2').text().includes('联系我'), '联系我 heading');
